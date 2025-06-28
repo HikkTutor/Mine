@@ -1,15 +1,139 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="refresh" content="0; url=minecraft://?addExternalServer=Выживание|88.151.117.88:25622">
-    <title>Добавление сервера в Minecraft</title>
+    <title>VSakoe presents: ЖЕСТКОЕ ВЫЖИВАНИЕ</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-        a { color: #1E88E5; }
+        body {
+            background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
+            font-family: 'Arial', sans-serif;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .title-box {
+            background: linear-gradient(90deg, #ffeb3b 0%, #ff9800 100%);
+            border: 3px solid #ffeb3b;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(255, 235, 59, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
+            }
+            to {
+                box-shadow: 0 0 30px rgba(255, 235, 59, 0.8);
+            }
+        }
+
+        h1 {
+            font-size: 3em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            margin: 10px 0 0;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(90deg, #ff9800 0%, #ffeb3b 100%);
+            color: #000;
+            font-size: 1.5em;
+            font-weight: bold;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            margin: 20px 0;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .meme-text {
+            position: fixed;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        .top-left {
+            top: 10px;
+            left: 10px;
+        }
+
+        .bottom-right {
+            bottom: 10px;
+            right: 10px;
+        }
+
+        .signature {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-style: italic;
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .warning {
+            color: #ff9800;
+            font-weight: bold;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h2>Добавление сервера "Выживание"</h2>
-    <p>Если Minecraft не открылся автоматически, <a href="minecraft://?addExternalServer=Выживание|88.151.117.88:25622">нажми сюда</a>.</p>
+    <div class="meme-text top-left">"Не будешь играть — по лбу получишь" © VSakoe</div>
+    
+    <div class="container">
+        <div class="title-box">
+            <h1>ВЫЖИВАНИЕ</h1>
+            <p class="subtitle">Только для настоящих грифтеров</p>
+        </div>
+
+        <a href="minecraft://?addExternalServer=Выживание|88.151.117.88:25622" class="btn">ДОБАВИТЬ СЕРВЕР</a>
+
+        <p class="warning">Внимание! После добавления сервера ты обязан играть минимум 18 часов в сутки!</p>
+    </div>
+
+    <div class="meme-text bottom-right">"Здесь был VSakoe"</div>
+    <div class="signature">Made by VSakoe with ♥ and creepers</div>
+
+    <script>
+        // Добавляем немного интерактивности
+        document.querySelector('.btn').addEventListener('click', function() {
+            alert('Сервер добавлен! Теперь ты наш навсегда 😈');
+        });
+    </script>
 </body>
 </html>

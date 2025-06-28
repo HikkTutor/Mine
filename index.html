@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VSakoe presents: ЖЕСТКОЕ ВЫЖИВАНИЕ</title>
+    <title>VSakoe presents: ЖЕСТКОЕ ВЫЖИВАНИЕ 1.21.90</title>
     <style>
         :root {
             --yellow: #ffeb3b;
             --orange: #ff9800;
             --dark: #1a1a1a;
             --gray: #2b2b2b;
+            --btn-height: 60px;
         }
 
         * {
@@ -57,14 +58,25 @@
         }
 
         h1 {
-            font-size: clamp(2rem, 8vw, 3.5rem);
+            font-size: clamp(2.5rem, 10vw, 4rem);
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             line-height: 1.2;
         }
 
+        .version-badge {
+            background: #000;
+            color: var(--yellow);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            display: inline-block;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
         .subtitle {
-            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            font-size: clamp(1rem, 4vw, 1.5rem);
             margin: 10px 0 0;
             color: #333;
             font-weight: bold;
@@ -74,31 +86,49 @@
             display: inline-block;
             background: linear-gradient(90deg, var(--orange) 0%, var(--yellow) 100%);
             color: #000;
-            font-size: clamp(1rem, 4vw, 1.5rem);
+            font-size: clamp(1.2rem, 5vw, 1.8rem);
             font-weight: bold;
-            padding: 12px 25px;
+            padding: 15px 30px;
             border-radius: 50px;
             text-decoration: none;
-            margin: 20px 0;
+            margin: 15px 0;
             border: none;
             cursor: pointer;
             box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
             transition: all 0.3s ease;
             width: 100%;
-            max-width: 300px;
+            max-width: 350px;
+            height: var(--btn-height);
+            line-height: calc(var(--btn-height) - 30px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-download {
+            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
         }
 
         .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.6);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 152, 0, 0.6);
         }
 
         .btn:active {
-            transform: translateY(1px);
+            transform: translateY(2px);
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
         }
 
         .meme-text {
-            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            font-size: clamp(0.8rem, 3vw, 1rem);
             opacity: 0.7;
             position: fixed;
             padding: 5px;
@@ -121,7 +151,7 @@
             bottom: 10px;
             left: 10px;
             font-style: italic;
-            font-size: clamp(0.6rem, 2vw, 0.8rem);
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
             color: #666;
             text-align: left;
         }
@@ -129,8 +159,32 @@
         .warning {
             color: var(--orange);
             font-weight: bold;
-            margin: 15px 0;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            margin: 20px 0;
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .features {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .features h3 {
+            color: var(--yellow);
+            margin-bottom: 10px;
+            font-size: clamp(1.1rem, 4vw, 1.3rem);
+        }
+
+        .features ul {
+            padding-left: 20px;
+        }
+
+        .features li {
+            margin-bottom: 8px;
+            font-size: clamp(0.9rem, 3vw, 1rem);
         }
 
         .notification {
@@ -149,9 +203,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-.creeper {
+        .creeper {
             position: fixed;
-            font-size: clamp(2rem, 10vw, 4rem);
+            font-size: clamp(3rem, 12vw, 5rem);
             opacity: 0.1;
             z-index: 0;
             animation: float 10s infinite ease-in-out;
@@ -168,33 +222,51 @@
         .creeper-1 { top: 10%; left: 5%; }
         .creeper-2 { bottom: 15%; right: 5%; }
         .creeper-3 { top: 40%; right: 10%; }
+        .creeper-4 { bottom: 30%; left: 8%; }
     </style>
 </head>
 <body>
     <div class="creeper creeper-1">☠️</div>
     <div class="creeper creeper-2">💣</div>
     <div class="creeper creeper-3">👾</div>
+    <div class="creeper creeper-4">🐷</div>
 
     <div class="meme-text top-left">"Не будешь играть — по лбу получишь"<br>© VSakoe</div>
     
     <div class="container">
         <div class="title-box">
             <h1>ВЫЖИВАНИЕ</h1>
-            <p class="subtitle">Только для настоящих грифтеров</p>
+            <div class="version-badge">Версия 1.21.90</div>
+            <p class="subtitle">Свиньям вход закрыт</p>
         </div>
 
-        <a id="server-btn" href="minecraft://?addExternalServer=Выживание|88.151.117.88:25622" class="btn">ДОБАВИТЬ СЕРВЕР</a>
+        <div class="features">
+            <h3>🔥 Что нового в версии 1.21.90:</h3>
+            <ul>
+                <li>Новые мобы-наставники (помогают в обучении)</li>
+                <li>Улучшенная физика поводков</li>
+                <li>Дополнительные виды древесины</li>
+                <li>Новые генерации подземелий</li>
+                <li>Улучшенный ИИ мобов</li>
+                <li>Оптимизация производительности</li>
+            </ul>
+        </div>
+
+        <div class="btn-container">
+            <a id="server-btn" href="minecraft://?addExternalServer=Выживание|88.151.117.88:25622" class="btn">ДОБАВИТЬ СЕРВЕР</a>
+            <a href="https://mcpefox.com/wp-content/uploads/2025/06/minecraft-1-21-92-arm64-v8a-music.apk" class="btn btn-download">СКАЧАТЬ MINECRAFT</a>
+        </div>
 
         <div id="notification" class="notification">
             Сервер добавлен! Теперь ты наш навсегда 😈<br>
-            <small>PS: Беги в игру, пока крипер не нашёл тебя IRL</small>
+            <small>PS: Время заходить в игру!</small>
         </div>
 
         <p class="warning">Внимание! После добавления сервера ты обязан играть минимум 18 часов в сутки!</p>
     </div>
 
-    <div class="meme-text bottom-right">"Здесь был VSakoe"<br>"Где алмазы, Лебовски?"</div>
-    <div class="signature">Made by VSakoe with ♥ and creepers</div>
+    <div class="meme-text bottom-right">"Где мои алмазы?"<br>"Сервер - святое"</div>
+    <div class="signature">Made by VSakoe</div>
 
     <script>
         document.getElementById('server-btn').addEventListener('click', function(e) {
@@ -206,14 +278,13 @@
                     window.location.href = this.href;
                 }, 3000);
             }
-            // На мобильных сработает стандартный переход
         });
 
         // Дополнительный мемный эффект
         const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'];
         let i = 0;
         setInterval(() => {
-            document.body.style.border = 5px solid ${colors[i]};
+            document.body.style.border = `5px solid ${colors[i]}`;
             i = (i + 1) % colors.length;
         }, 1000);
     </script>

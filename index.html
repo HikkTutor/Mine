@@ -180,7 +180,6 @@
             color: #666;
         }
 
-        /* Обновлённые стили статуса (2025) */
         .server-status {
             position: fixed;
             top: 10px;
@@ -235,14 +234,12 @@
     </style>
 </head>
 <body>
-    <!-- Криперы -->
     <div class="creeper" style="top:10%;left:5%;animation-duration:40s;">☠️</div>
     <div class="creeper" style="top:20%;left:30%;animation-duration:50s;">💣</div>
     <div class="creeper" style="top:70%;left:10%;animation-duration:45s;">😑</div>
     <div class="creeper" style="top:50%;left:60%;animation-duration:55s;">🐷</div>
     <div class="creeper" style="top:30%;left:80%;animation-duration:60s;">🔥</div>
     
-    <!-- Обновлённый индикатор статуса -->
     <div class="server-status">
         <div class="status-indicator" id="status-indicator"></div>
         <span id="status-text">Проверка...</span>
@@ -281,20 +278,16 @@
 
     <div class="signature">Made by VSakoe</div>
 
-    <!-- Обновлённый скрипт (2025) -->
     <script>
-        // Конфигурация
         const CLOUDFLARE_WORKER_URL = "https://ancient-boat-f904.dimakavyrsin1506.workers.dev/"; // Замените на ваш URL Worker
         const SERVER_IP = "88.151.117.88";
         const SERVER_PORT = "25622";
-        const CHECK_INTERVAL = 60000; // 1 минута
+        const CHECK_INTERVAL = 60000; 
 
-        // Элементы интерфейса
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
         const playerCount = document.getElementById('player-count');
 
-        // Основная функция проверки статуса
         async function checkServerStatus() {
             try {
                 const response = await fetch(${CLOUDFLARE_WORKER_URL}?ip=${SERVER_IP}&port=${SERVER_PORT});
@@ -304,7 +297,6 @@
                 const data = await response.json();
                 
                 if (data.online) {
-                    // Сервер онлайн
                     statusIndicator.classList.add('online');
                     statusText.textContent = 'Онлайн';
                     
@@ -315,7 +307,6 @@
                         playerCount.textContent = 'Данные игроков недоступны';
                     }
                 } else {
-                    // Сервер оффлайн
                     throw new Error('Сервер не отвечает');
                 }
             } catch (error) {
@@ -326,11 +317,9 @@
             }
         }
 
-        // Проверка при загрузке и по интервалу
         checkServerStatus();
         setInterval(checkServerStatus, CHECK_INTERVAL);
 
-        // Обработка кнопки добавления сервера
         document.getElementById('server-btn').addEventListener('click', function(e) {
             if (!/Mobi|Android/i.test(navigator.userAgent)) {
                 e.preventDefault();
@@ -341,15 +330,13 @@
             }
         });
 
-        // Анимация криперов
         document.querySelectorAll('.creeper').forEach(creeper => {
             creeper.style.animationDuration = ${40 + Math.random() * 30}s;
         });
 
-        // Дополнительный мониторинг (если Worker недоступен)
         function fallbackCheck() {
             const img = new Image();
-            img.src = http://${SERVER_IP}:${SERVER_PORT}/favicon.ico?t=${Date.now()};
+            img.src = http:
             img.onload = () => {
                 if (!statusIndicator.classList.contains('online')) {
                     statusIndicator.classList.add('online');
@@ -364,7 +351,6 @@
             };
         }
 
-        // Проверка через 10 секунд после загрузки
         setTimeout(fallbackCheck, 10000);
     </script>
 </body>

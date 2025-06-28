@@ -237,7 +237,7 @@
     <div class="server-status">
         <div class="status-indicator" id="status-indicator"></div>
         <span id="status-text">Проверка...</span>
-        <span class="player-count" id="player-count"></span>
+        <span class="player-count show" id="player-count">Игроки: данные недоступны</span>
     </div>
 
     <div class="container">
@@ -273,67 +273,55 @@
     <div class="signature">Made by VSakoe</div>
 
 <script>
-        // Прямое подключение к серверу без API (WebSocket)
+        // Функция для проверки статуса сервера без API
         async function checkServerStatus() {
             const statusIndicator = document.getElementById('status-indicator');
             const statusText = document.getElementById('status-text');
             const playerCount = document.getElementById('player-count');
             
             // Ваши настройки сервера
-            const serverIP = '88.151.117.88'; // Замените на IP вашего сервера
-            const serverPort = '25622'; // Замените на порт вашего сервера
+            const serverIP = '88.151.117.88';
+            const serverPort = '25622';
 
             try {
-                // Создаем WebSocket соединение
-                const socket = new WebSocket(ws://${serverIP}:${serverPort});
+                // Создаем изображение, которое попытается загрузить favicon сервера
+                const img = new Image();
                 
-                // Таймаут соединения (5 секунд)
-                const timeout = setTimeout(() => {
-                    socket.close();
-                    throw new Error('Таймаут соединения');
-                }, 5000);
-
-                socket.onopen = () => {
-                    clearTimeout(timeout);
+                // Создаем промис с таймаутом
+                const status = await new Promise((resolve, reject) => {
+                    const timer = setTimeout(() => {
+                        reject(new Error('Таймаут соединения'));
+                    }, 3000);
+                    
+                    img.onload = () => {
+                        clearTimeout(timer);
+                        resolve(true);
+                    };
+                    
+                    img.onerror = () => {
+                        clearTimeout(timer);
+                        reject(new Error('Сервер не отвечает'));
+                    };
+                    
+                    // Пытаемся загрузить favicon сервера
+                    img.src = http://${serverIP}:${serverPort}/favicon.ico?t=${Date.now()};
+                });
+                
+                if (status) {
                     statusIndicator.classList.add('online');
                     statusText.textContent = 'Онлайн';
-                    playerCount.textContent = 'Игроки: проверка...';
                     playerCount.classList.add('show');
-                    
-                    // Запрос информации о сервере (пример для Bedrock)
-                    socket.send(JSON.stringify({
-                        type: 'status'
-                    }));
-                };
-
-                socket.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
-                    if (data.players) {
-                        playerCount.textContent = Игроков: ${data.players.online}/${data.players.max};
-                    }
-                };
-
-                socket.onerror = () => {
-                    clearTimeout(timeout);
-                    statusIndicator.classList.remove('online');
-                    statusText.textContent = 'Оффлайн';
-                    playerCount.classList.remove('show');
-                };
-
-                socket.onclose = () => {
-                    clearTimeout(timeout);
-                };
+                }
             } catch (error) {
-                console.error('Ошибка проверки статуса:', error);
+                console.log('Ошибка проверки статуса:', error.message);
                 statusIndicator.classList.remove('online');
-                statusText.textContent = 'Ошибка';
-                playerCount.classList.remove('show');
+                statusText.textContent = 'Оффлайн';
             }
         }
 
-        // Проверяем статус сразу и каждую минуту
+        // Проверяем статус сразу и каждые 2 минуты
         checkServerStatus();
-        setInterval(checkServerStatus, 60000);
+        setInterval(checkServerStatus, 120000);
 
         // Обработка кнопки добавления сервера
         document.getElementById('server-btn').addEventListener('click', function(e) {

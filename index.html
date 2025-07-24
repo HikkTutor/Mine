@@ -559,36 +559,64 @@
         const javaInfo = document.getElementById('java-info');
         const copyJavaBtn = document.getElementById('copy-java-btn');
 
-        // Определение устройства (только ПК)
+        // Улучшенное определение типа устройства
         function isDesktopDevice() {
-            // Проверка по userAgent и по поддержке мыши
+            // Проверка по user agent
+            const userAgent = navigator.userAgent.toLowerCase();
+            
+            // Исключаем мобильные устройства и планшеты
+            const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+            
+            // Проверка на планшеты (iPad в Safari на iOS 13+)
+            const isTablet = /ipad|tablet|playbook|silk|kindle|(android(?!.*mobile))/i.test(userAgent);
+            
+            // Проверка на сенсорные устройства
             const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            return !isMobile && !isTouchDevice;
+            
+            // Если это не мобильное и не планшет, считаем ПК
+            return !isMobile && !isTablet;
         }
 
         // Показать блок для Java только на ПК
         if (isDesktopDevice()) {
             javaInfo.style.display = 'block';
+        } else {
+            javaInfo.style.display = 'none';
         }
 
         // Обновляем ссылку для подключения
         serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
 
-        // Функция для проверки статуса сервера (заглушка)
+        // Функция для проверки статуса сервера
         async function checkServerStatus() {
             try {
-                // В реальном проекте здесь был бы fetch к API сервера
-                // Для демонстрации используем случайный результат
-                const isOnline = Math.random() > 0.3;
-                const onlinePlayers = isOnline ? Math.floor(Math.random() * 15) + 5 : 0;
-                const maxPlayers = 20;
+                // В реальном проекте здесь должен быть запрос к вашему API
+                // Для демонстрации используем эмуляцию запроса
                 
-                if (isOnline) {
+                // Эмуляция запроса - замените на реальный fetch
+                /*
+                const response = await fetch(`/status.php?t=${Date.now()}`);
+                if (!response.ok) throw new Error('Ошибка сети');
+                const data = await response.json();
+                */
+                
+                // Заглушка с эмуляцией ответа
+                const data = {
+                    online: true,
+                    players: {
+                        online: 12,
+                        max: 20
+                    }
+                };
+                
+                if (data.online) {
                     statusIndicator.classList.add('online');
                     statusText.textContent = 'Онлайн';
-                    playerCount.textContent = `${onlinePlayers} из ${maxPlayers}`;
-                    playerCount.classList.add('show');
+                    
+                    if (data.players) {
+                        playerCount.textContent = `${data.players.online} из ${data.players.max}`;
+                        playerCount.classList.add('show');
+                    }
                 } else {
                     statusIndicator.classList.remove('online');
                     statusText.textContent = 'Оффлайн';
@@ -598,6 +626,7 @@
                 statusIndicator.classList.remove('online');
                 statusText.textContent = 'Ошибка';
                 playerCount.classList.remove('show');
+                console.error('Ошибка проверки статуса:', error);
             }
         }
 
@@ -628,12 +657,13 @@
                 notification.style.display = 'block';
                 
                 // Анимация кнопки
+                const originalHTML = this.innerHTML;
                 this.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
                 this.disabled = true;
                 
                 setTimeout(() => {
                     notification.style.display = 'none';
-                    this.innerHTML = '<i class="fas fa-copy"></i> Копировать IP';
+                    this.innerHTML = originalHTML;
                     this.disabled = false;
                 }, 3000);
             }).catch(err => {
@@ -649,12 +679,13 @@
                     notification.style.display = 'block';
                     
                     // Анимация кнопки
+                    const originalHTML = this.innerHTML;
                     this.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
                     this.disabled = true;
                     
                     setTimeout(() => {
                         notification.style.display = 'none';
-                        this.innerHTML = '<i class="fas fa-copy"></i> Копировать IP';
+                        this.innerHTML = originalHTML;
                         this.disabled = false;
                     }, 3000);
                 } catch (e) {

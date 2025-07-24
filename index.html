@@ -665,13 +665,13 @@
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
         const EMOJI_COUNT = 12;
         const MIN_SPEED = 0.4;
-        const MAX_SPEED = 1.5; // Увеличена скорость в 3 раза
+        const MAX_SPEED = 1.5;
         const INTERACTIVE_OPACITY = 0.15;
-        const REPULSION_FORCE = 0.15; // Увеличена сила отталкивания в 5 раз
+        const REPULSION_FORCE = 0.15;
         const MIN_DISTANCE = 100;
         const DAMPING = 0.94;
-        const WIND_FORCE = 0.0005;
-        const WIND_CHANGE_INTERVAL = 5000;
+        const WIND_FORCE = 0.0003; // Более мягкий ветер
+        const WIND_CHANGE_INTERVAL = 10000; // Более редкие изменения ветра
         const DRAG_HISTORY_SIZE = 7;
         const INERTIA_MULTIPLIER = 0.8;
         const SCREEN_MARGIN = 60;
@@ -750,8 +750,9 @@
 
         function updateWind(timestamp) {
             if (timestamp - wind.lastChange > WIND_CHANGE_INTERVAL) {
-                wind.x = (Math.random() - 0.5) * WIND_FORCE;
-                wind.y = (Math.random() - 0.5) * WIND_FORCE;
+                // Более плавное изменение ветра
+                wind.x = wind.x * 0.5 + (Math.random() - 0.5) * WIND_FORCE * 0.5;
+                wind.y = wind.y * 0.5 + (Math.random() - 0.5) * WIND_FORCE * 0.5;
                 wind.lastChange = timestamp;
             }
             requestAnimationFrame(updateWind);
@@ -777,12 +778,12 @@
                 p.rotation += p.rotationSpeed * deltaTime * 0.05;
                 p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
                 
-                // Плавный переход через границы с учетом масштаба
-                if (p.x < -p.size * scaleFactor) p.x = window.innerWidth + p.size * scaleFactor;
-                else if (p.x > window.innerWidth + p.size * scaleFactor) p.x = -p.size * scaleFactor;
+                // Исправленный выход за границы
+                if (p.x < -p.size) p.x = window.innerWidth + p.size;
+                else if (p.x > window.innerWidth + p.size) p.x = -p.size;
                 
-                if (p.y < -p.size * scaleFactor) p.y = window.innerHeight + p.size * scaleFactor;
-                else if (p.y > window.innerHeight + p.size * scaleFactor) p.y = -p.size * scaleFactor;
+                if (p.y < -p.size) p.y = window.innerHeight + p.size;
+                else if (p.y > window.innerHeight + p.size) p.y = -p.size;
                 
                 p.element.style.left = `${p.x}px`;
                 p.element.style.top = `${p.y}px`;
@@ -879,15 +880,13 @@
                 p.element.style.top = `${p.y}px`;
             });
             
-            // Обновляем отображение Java-элементов
+            // Надежное скрытие Java-элементов на мобильных устройствах
             if (window.innerWidth >= 769) {
-                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
-                    el.style.display = 'flex';
-                });
+                document.querySelector('.java-badge').style.display = 'flex';
+                document.querySelector('.java-section').style.display = 'block';
             } else {
-                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
-                    el.style.display = 'none';
-                });
+                document.querySelector('.java-badge').style.display = 'none';
+                document.querySelector('.java-section').style.display = 'none';
             }
             
             updateScaleFactor();

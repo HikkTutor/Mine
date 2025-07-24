@@ -62,10 +62,9 @@
             min-width: 300px;
             padding: 15px;
             position: relative;
-            z-index: 10;
+            z-index: 1;
             margin: 0 auto;
-            transition: transform 0.4s ease, opacity 0.4s ease;
-            will-change: transform, opacity;
+            transition: transform 0.4s, opacity 0.4s;
         }
 
         .title-box {
@@ -150,7 +149,7 @@
             border: none;
             cursor: pointer;
             width: 100%;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
@@ -286,7 +285,7 @@
             position: absolute;
             font-size: clamp(2rem, 8vw, 3rem);
             opacity: 0.08;
-            z-index: 1;
+            z-index: 0;
             pointer-events: none;
             user-select: none;
             transform: translate(-50%, -50%);
@@ -495,26 +494,23 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 42px;
-            height: 42px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: linear-gradient(90deg, var(--orange) 0%, var(--yellow) 100%);
             color: #000;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             z-index: 1000;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             cursor: pointer;
-            transition: all 0.3s ease;
-            transform: scale(1);
-            opacity: 0.9;
+            transition: all 0.3s;
         }
 
         .ui-toggle:hover {
             transform: scale(1.1);
-            opacity: 1;
         }
 
         .mobile-only {
@@ -525,11 +521,17 @@
             .mobile-only {
                 display: block;
             }
+            .ui-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 1.3rem;
+            }
         }
 
         body.ui-hidden .container {
-            transform: translateY(100%) scale(0.95);
             opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s, visibility 0.4s;
             pointer-events: none;
         }
 
@@ -568,13 +570,6 @@
             .copy-btn {
                 width: 100%;
                 justify-content: center;
-            }
-            .ui-toggle {
-                width: 38px;
-                height: 38px;
-                font-size: 1.1rem;
-                bottom: 15px;
-                right: 15px;
             }
         }
     </style>
@@ -666,17 +661,16 @@
         
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
         const EMOJI_COUNT = 12;
-        const MIN_SPEED = 0.2;
-        const MAX_SPEED = 1.0; // Увеличена скорость
+        const MIN_SPEED = 0.1;
+        const MAX_SPEED = 0.8; // Увеличена максимальная скорость
         const INTERACTIVE_OPACITY = 0.15;
-        const REPULSION_FORCE = 0.03; // Увеличена сила отталкивания
-        const MIN_DISTANCE = 100;
-        const DAMPING = 0.96;
-        const WIND_FORCE = 0.0003;
+        const REPULSION_FORCE = 0.03; // Усилено отталкивание
+        const MIN_DISTANCE = 100; // Уменьшено минимальное расстояние
+        const DAMPING = 0.95; // Уменьшено замедление для большей инерции
+        const WIND_FORCE = 0.0005; // Усилен ветер
         const WIND_CHANGE_INTERVAL = 5000;
         const DRAG_HISTORY_SIZE = 5;
-        const INERTIA_MULTIPLIER = 0.7;
-        const SCREEN_MARGIN = 50;
+        const INERTIA_MULTIPLIER = 1.2; // Увеличена инерция
         
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
@@ -712,13 +706,6 @@
             checkServerStatus();
             setInterval(checkServerStatus, CHECK_INTERVAL);
             setupEventListeners();
-            
-            // Сразу скрываем Java-секцию на мобильных
-            if (window.innerWidth < 769) {
-                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
-                    el.style.display = 'none';
-                });
-            }
         }
 
         function createEmojiParticles() {
@@ -733,8 +720,8 @@
                 
                 emojiParticles.push({
                     element: emoji,
-                    x: Math.random() * (window.innerWidth - SCREEN_MARGIN * 2) + SCREEN_MARGIN,
-                    y: Math.random() * (window.innerHeight - SCREEN_MARGIN * 2) + SCREEN_MARGIN,
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
                     vx: (Math.random() - 0.5) * MAX_SPEED,
                     vy: (Math.random() - 0.5) * MAX_SPEED,
                     size: size,
@@ -773,12 +760,12 @@
                 p.rotation += p.rotationSpeed;
                 p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
                 
-                // Плавный переход через границы
-                if (p.x < -p.size) p.x = window.innerWidth + p.size;
-                else if (p.x > window.innerWidth + p.size) p.x = -p.size;
+                // Улучшенное поведение у границ экрана
+                if (p.x < -p.size/2) p.x = window.innerWidth + p.size/2;
+                else if (p.x > window.innerWidth + p.size/2) p.x = -p.size/2;
                 
-                if (p.y < -p.size) p.y = window.innerHeight + p.size;
-                else if (p.y > window.innerHeight + p.size) p.y = -p.size;
+                if (p.y < -p.size/2) p.y = window.innerHeight + p.size/2;
+                else if (p.y > window.innerHeight + p.size/2) p.y = -p.size/2;
                 
                 p.element.style.left = `${p.x}px`;
                 p.element.style.top = `${p.y}px`;
@@ -848,29 +835,9 @@
             window.addEventListener('mouseup', endDrag);
             window.addEventListener('touchend', endDrag);
             window.addEventListener('touchcancel', endDrag);
-            window.addEventListener('resize', handleResize);
+            window.addEventListener('resize', adjustForSmallScreens);
             uiToggle.addEventListener('click', toggleUI);
-        }
-        
-        function handleResize() {
-            // Корректируем позиции эмодзи при изменении размера окна
-            emojiParticles.forEach(p => {
-                if (p.x > window.innerWidth) p.x = window.innerWidth - SCREEN_MARGIN;
-                if (p.y > window.innerHeight) p.y = window.innerHeight - SCREEN_MARGIN;
-                p.element.style.left = `${p.x}px`;
-                p.element.style.top = `${p.y}px`;
-            });
-            
-            // Обновляем отображение Java-элементов
-            if (window.innerWidth >= 769) {
-                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
-                    el.style.display = 'flex';
-                });
-            } else {
-                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
-                    el.style.display = 'none';
-                });
-            }
+            adjustForSmallScreens();
         }
 
         function handleTouchStart(e) {
@@ -926,7 +893,7 @@
         function endDrag() {
             if (isDragging && dragEmoji) {
                 dragEmoji.element.style.opacity = INTERACTIVE_OPACITY + '';
-                dragEmoji.element.style.zIndex = '1';
+                dragEmoji.element.style.zIndex = '0';
                 
                 if (dragEmoji.dragHistory.length > 1) {
                     const first = dragEmoji.dragHistory[0];
@@ -1002,6 +969,12 @@
             statusIndicator.classList.remove('online');
             statusText.textContent = 'Оффлайн';
             playerCount.classList.remove('show');
+        }
+
+        function adjustForSmallScreens() {
+            document.querySelectorAll('.java-badge, .java-section').forEach(el => {
+                el.style.display = window.innerWidth >= 769 ? 'flex' : 'none';
+            });
         }
 
         window.addEventListener('load', init);

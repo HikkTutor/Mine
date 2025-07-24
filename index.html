@@ -289,7 +289,7 @@
             margin-top: 15px;
             background: linear-gradient(135deg, rgba(30, 60, 26, 0.6), rgba(83, 130, 74, 0.4));
             border-radius: 8px;
-            padding: 16px;
+            padding: 14px 16px 16px;
             display: none;
             border: 1px solid rgba(176, 255, 169, 0.2);
             position: relative;
@@ -312,7 +312,7 @@
 
         .java-section h3 {
             color: #b0ffa9;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             font-size: clamp(1.1rem, 4vw, 1.3rem);
             display: flex;
             align-items: center;
@@ -324,29 +324,36 @@
         .java-content {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
         .java-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .java-address-container {
+            flex: 1;
+            min-width: 200px;
             background: rgba(0, 0, 0, 0.25);
             border-radius: 8px;
-            padding: 12px;
+            padding: 10px 12px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            gap: 10px;
         }
 
         .java-address {
             font-family: 'Courier New', monospace;
-            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            font-size: clamp(0.85rem, 3vw, 1rem);
             color: #b0ffa9;
             font-weight: bold;
             overflow: hidden;
             text-overflow: ellipsis;
-            text-align: left;
+            text-align: center;
             flex-grow: 1;
-            padding: 5px 0;
         }
 
         .copy-btn {
@@ -362,6 +369,7 @@
             gap: 8px;
             font-weight: bold;
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .copy-btn:hover {
@@ -375,9 +383,10 @@
             color: #8cbb87;
             margin-top: 5px;
             font-style: italic;
+            text-align: center;
         }
 
-        @media (max-width: 400px) {
+        @media (max-width: 500px) {
             .container {
                 padding: 10px;
             }
@@ -397,7 +406,12 @@
                 flex-direction: column;
                 align-items: stretch;
             }
+            .java-address-container {
+                width: 100%;
+                min-width: unset;
+            }
             .copy-btn {
+                width: 100%;
                 justify-content: center;
             }
         }
@@ -463,7 +477,9 @@
             
             <div class="java-content">
                 <div class="java-info">
-                    <div class="java-address" id="java-ip">88.151.117.88:25622</div>
+                    <div class="java-address-container">
+                        <div class="java-address" id="java-ip">88.151.117.88:25622</div>
+                    </div>
                     <button class="copy-btn" id="java-copy-btn">
                         <i class="far fa-copy"></i> Копировать
                     </button>

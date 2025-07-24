@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Minecraft Bedrock 1.21.90 / Java 1.21.6 | Выживание</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --yellow: #ffeb3b;
@@ -12,8 +13,8 @@
             --gray: #2b2b2b;
             --green: #4CAF50;
             --red: #f44336;
-            --blue: #2196F3;
-            --purple: #9C27B0;
+            --java-green: #53824a;
+            --java-dark: #1e3c1a;
         }
 
         * {
@@ -83,11 +84,26 @@
             border-radius: 20px;
             font-size: 0.9em;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .java-badge {
-            background: #1a0c2c;
-            color: #b38cff;
+            background: var(--java-dark);
+            color: #b0ffa9;
+            display: none;
+        }
+
+        .desktop-only {
+            display: none;
+        }
+
+        @media (min-width: 769px) {
+            .java-badge,
+            .desktop-only {
+                display: flex;
+            }
         }
 
         .subtitle {
@@ -98,7 +114,10 @@
         }
 
         .btn {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             color: #000;
             font-size: clamp(1rem, 4vw, 1.2rem);
             font-weight: bold;
@@ -113,6 +132,10 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
+        .btn i {
+            font-size: 1.2em;
+        }
+
         .btn-server {
             background: linear-gradient(90deg, var(--orange) 0%, var(--yellow) 100%);
         }
@@ -122,12 +145,12 @@
         }
 
         .btn-java {
-            background: linear-gradient(90deg, var(--purple) 0%, var(--blue) 100%);
+            background: linear-gradient(90deg, var(--java-green) 0%, var(--java-dark) 100%);
             color: white;
         }
 
         .btn-java:hover {
-            box-shadow: 0 0 15px var(--purple);
+            box-shadow: 0 0 15px var(--java-green);
         }
 
         .btn-download {
@@ -155,6 +178,9 @@
             color: var(--yellow);
             margin-bottom: 10px;
             font-size: clamp(1rem, 4vw, 1.2rem);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .features ul {
@@ -178,7 +204,7 @@
         }
 
         .java-notification {
-            border-left: 3px solid var(--purple);
+            border-left: 3px solid var(--java-green);
         }
 
         @keyframes fadeIn {
@@ -268,6 +294,63 @@
             white-space: nowrap;
         }
 
+        .java-section {
+            margin-top: 15px;
+            background: rgba(30, 60, 26, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            display: none;
+        }
+
+        .java-section.desktop-only {
+            display: block;
+        }
+
+        .java-section h3 {
+            color: #b0ffa9;
+            margin-bottom: 10px;
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .java-info {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .java-info span {
+            color: #b0ffa9;
+            font-weight: bold;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .copy-btn {
+            background: var(--java-green);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .copy-btn:hover {
+            background: #3e6d37;
+        }
+
         @media (max-width: 400px) {
             .container {
                 padding: 10px;
@@ -304,14 +387,18 @@
         <div class="title-box">
             <h1>ВЫЖИВАНИЕ</h1>
             <div class="badges-container">
-                <div class="version-badge">Bedrock 1.21.90</div>
-                <div class="version-badge java-badge">Java 1.21.6</div>
+                <div class="version-badge">
+                    <i class="fas fa-mobile-alt"></i> Bedrock 1.21.90
+                </div>
+                <div class="version-badge java-badge">
+                    <i class="fab fa-java"></i> Java 1.21.6
+                </div>
             </div>
             <p class="subtitle">Свиньям вход запрещён</p>
         </div>
 
         <div class="features">
-            <h3>Главные нововведения:</h3>
+            <h3><i class="fas fa-star"></i> Главные нововведения:</h3>
             <ul>
                 <li><strong>Счастливый Гаст</strong> - новый моб для путешествий и строительства</li>
                 <li><strong>Поводки</strong> - новая логика и физика поводков </li>
@@ -324,17 +411,33 @@
             </ul>
         </div>
 
-        <a id="server-btn" href="minecraft://?addExternalServer=Выживание|88.151.117.88:25622" class="btn btn-server">ДОБАВИТЬ СЕРВЕР (BEDROCK)</a>
-        <button id="java-btn" class="btn btn-java">СКОПИРОВАТЬ IP:PORT (JAVA)</button>
-        <a href="https://mcpefox.com/wp-content/uploads/2025/06/minecraft-1-21-92-arm64-v8a-music.apk" class="btn btn-download">СКАЧАТЬ MINECRAFT (BEDROCK)</a>
+        <a id="server-btn" href="minecraft://?addExternalServer=Выживание|88.151.117.88:25622" class="btn btn-server">
+            <i class="fas fa-plus-circle"></i> ДОБАВИТЬ СЕРВЕР (BEDROCK)
+        </a>
+        
+        <a href="https://mcpefox.com/wp-content/uploads/2025/06/minecraft-1-21-92-arm64-v8a-music.apk" class="btn btn-download">
+            <i class="fas fa-download"></i> СКАЧАТЬ MINECRAFT (BEDROCK)
+        </a>
 
         <div id="notification" class="notification">
-            Сервер добавлен!<br>
+            <i class="fas fa-check-circle"></i> Сервер добавлен!<br>
             <small>Те, кто не играют — по лбу получают</small>
         </div>
         
+        <!-- Java секция (только для ПК) -->
+        <div class="java-section desktop-only">
+            <h3><i class="fab fa-java"></i> Для игроков Java Edition</h3>
+            <div class="java-info">
+                <span id="java-ip">88.151.117.88:25622</span>
+                <button class="copy-btn" id="java-copy-btn">
+                    <i class="far fa-copy"></i> Копировать
+                </button>
+            </div>
+            <p><small>Используйте этот адрес для подключения в Minecraft Java Edition</small></p>
+        </div>
+
         <div id="java-notification" class="notification java-notification">
-            IP:PORT скопирован!<br>
+            <i class="fas fa-check-circle"></i> IP:PORT скопирован!<br>
             <small>Вставьте его в Minecraft Java Edition</small>
         </div>
     </div>
@@ -352,11 +455,13 @@
         const statusText = document.getElementById('status-text');
         const playerCount = document.getElementById('player-count');
         const serverBtn = document.getElementById('server-btn');
-        const javaBtn = document.getElementById('java-btn');
+        const javaIp = document.getElementById('java-ip');
+        const javaCopyBtn = document.getElementById('java-copy-btn');
         const javaNotification = document.getElementById('java-notification');
 
         // Обновляем ссылку для подключения
         serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
+        javaIp.textContent = `${SERVER_IP}:${SERVER_PORT}`;
 
         async function checkServerStatus() {
             try {
@@ -402,8 +507,8 @@
             }
         });
 
-        // Обработка кнопки "Скопировать IP:PORT"
-        javaBtn.addEventListener('click', function() {
+        // Обработка кнопки "Копировать"
+        javaCopyBtn.addEventListener('click', function() {
             const textToCopy = `${SERVER_IP}:${SERVER_PORT}`;
             
             // Копирование в буфер обмена
@@ -415,7 +520,7 @@
                 }, 3000);
             }).catch(err => {
                 console.error('Ошибка копирования: ', err);
-                javaNotification.innerHTML = 'Ошибка копирования!<br><small>Скопируйте вручную: ' + textToCopy + '</small>';
+                javaNotification.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Ошибка копирования!<br><small>Скопируйте вручную: ' + textToCopy + '</small>';
                 javaNotification.style.display = 'block';
             });
         });
@@ -429,6 +534,11 @@
         function adjustForSmallScreens() {
             const vh = window.innerHeight * 0.01;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
+            
+            // Обновляем видимость Java-элементов
+            document.querySelectorAll('.java-badge, .java-section').forEach(el => {
+                el.style.display = window.innerWidth >= 769 ? 'flex' : 'none';
+            });
         }
 
         window.addEventListener('resize', adjustForSmallScreens);

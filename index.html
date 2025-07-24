@@ -593,12 +593,16 @@
         
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
         const EMOJI_COUNT = 12;
-        const MIN_SPEED = 0.1; // Уменьшена минимальная скорость
-        const MAX_SPEED = 0.5; // Уменьшена максимальная скорость
+        const MIN_SPEED = 0.1;
+        const MAX_SPEED = 0.5;
         const INTERACTIVE_OPACITY = 0.15;
-        const REPULSION_FORCE = 0.01; // Уменьшена сила отталкивания
-        const MIN_DISTANCE = 120; // Увеличено минимальное расстояние
-        const DAMPING = 0.98; // Добавлено замедление
+        const REPULSION_FORCE = 0.01;
+        const MIN_DISTANCE = 120;
+        const DAMPING = 0.98;
+        const WIND_FORCE = 0.0002;
+        const WIND_CHANGE_INTERVAL = 5000;
+        const DRAG_HISTORY_SIZE = 5;
+        const INERTIA_MULTIPLIER = 0.5;
         
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
@@ -616,6 +620,11 @@
         let lastTime = 0;
         let isDragging = false;
         let dragEmoji = null;
+        let wind = {
+            x: (Math.random() - 0.5) * WIND_FORCE,
+            y: (Math.random() - 0.5) * WIND_FORCE,
+            lastChange: 0
+        };
 
         function init() {
             serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
@@ -623,6 +632,7 @@
             
             createEmojiParticles();
             requestAnimationFrame(animateEmojis);
+            requestAnimationFrame(updateWind);
             checkServerStatus();
             setInterval(checkServerStatus, CHECK_INTERVAL);
             setupEventListeners();
@@ -651,6 +661,15 @@
             }
         }
 
+        function updateWind(timestamp) {
+            if (timestamp - wind.lastChange > WIND_CHANGE_INTERVAL) {
+                wind.x = (Math.random() - 0.5) * WIND_FORCE;
+                wind.y = (Math.random() - 0.5) * WIND_FORCE;
+                wind.lastChange = timestamp;
+            }
+            requestAnimationFrame(updateWind);
+        }
+
         function animateEmojis(timestamp) {
             const deltaTime = timestamp - lastTime || 16;
             lastTime = timestamp;
@@ -660,17 +679,17 @@
                 
                 if (p === dragEmoji && isDragging) continue;
                 
-                // Применяем замедление
                 p.vx *= DAMPING;
                 p.vy *= DAMPING;
                 
-                // Обновляем позицию
+                p.vx += wind.x;
+                p.vy += wind.y;
+                
                 p.x += p.vx * deltaTime;
                 p.y += p.vy * deltaTime;
                 p.rotation += p.rotationSpeed;
                 p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
                 
-                // Тороидальное пространство - выход за границы
                 if (p.x < -p.size) p.x = window.innerWidth + p.size;
                 else if (p.x > window.innerWidth + p.size) p.x = -p.size;
                 
@@ -680,14 +699,12 @@
                 p.element.style.left = `${p.x}px`;
                 p.element.style.top = `${p.y}px`;
                 
-                // Ограничение максимальной скорости
                 const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
                 if (speed > MAX_SPEED) {
                     p.vx = (p.vx / speed) * MAX_SPEED;
                     p.vy = (p.vy / speed) * MAX_SPEED;
                 }
                 
-                // Физика отталкивания
                 for (let j = i + 1; j < emojiParticles.length; j++) {
                     const p2 = emojiParticles[j];
                     const dx = p.x - p2.x;
@@ -696,7 +713,6 @@
                     
                     if (distance < MIN_DISTANCE && distance > 0) {
                         const angle = Math.atan2(dy, dx);
-                        // Плавное отталкивание - сила зависит от расстояния
                         const force = Math.pow((MIN_DISTANCE - distance) / MIN_DISTANCE, 2) * REPULSION_FORCE;
                         
                         p.vx += force * Math.cos(angle);
@@ -704,7 +720,6 @@
                         p2.vx -= force * Math.cos(angle);
                         p2.vy -= force * Math.sin(angle);
                         
-                        // Редкие звуки при столкновении
                         if (Math.random() > 0.95) {
                             playCreeperSound();
                         }
@@ -758,6 +773,7 @@
                 isDragging = true;
                 dragEmoji = emojiParticles.find(p => p.element === e.target);
                 if (dragEmoji) {
+                    dragEmoji.dragHistory = [];
                     dragEmoji.element.style.opacity = '0.3';
                     dragEmoji.element.style.zIndex = '100';
                     playCreeperSound();
@@ -771,6 +787,16 @@
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             
+            dragEmoji.dragHistory.push({
+                x: clientX,
+                y: clientY,
+                time: performance.now()
+            });
+            
+            if (dragEmoji.dragHistory.length > DRAG_HISTORY_SIZE) {
+                dragEmoji.dragHistory.shift();
+            }
+            
             dragEmoji.x = clientX;
             dragEmoji.y = clientY;
             dragEmoji.element.style.left = `${clientX}px`;
@@ -782,9 +808,16 @@
                 dragEmoji.element.style.opacity = INTERACTIVE_OPACITY + '';
                 dragEmoji.element.style.zIndex = '0';
                 
-                // Плавный старт после отпускания
-                dragEmoji.vx = (Math.random() - 0.5) * MAX_SPEED;
-                dragEmoji.vy = (Math.random() - 0.5) * MAX_SPEED;
+                if (dragEmoji.dragHistory.length > 1) {
+                    const first = dragEmoji.dragHistory[0];
+                    const last = dragEmoji.dragHistory[dragEmoji.dragHistory.length - 1];
+                    const dt = last.time - first.time;
+                    
+                    if (dt > 0) {
+                        dragEmoji.vx = (last.x - first.x) / dt * INERTIA_MULTIPLIER;
+                        dragEmoji.vy = (last.y - first.y) / dt * INERTIA_MULTIPLIER;
+                    }
+                }
                 
                 playCreeperSound();
             }

@@ -58,7 +58,7 @@
 
         .container {
             width: 100%;
-            max-width: 700px; /* Увеличено для больших экранов */
+            max-width: 500px;
             min-width: 300px;
             padding: 15px;
             position: relative;
@@ -84,7 +84,7 @@
         }
 
         h1 {
-            font-size: clamp(1.8rem, 6vw, 2.8rem); /* Увеличено для больших экранов */
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             word-break: break-word;
@@ -103,7 +103,7 @@
             color: var(--yellow);
             padding: 3px 10px;
             border-radius: 20px;
-            font-size: clamp(0.8rem, 3vw, 1.1rem); /* Адаптивный размер */
+            font-size: 0.9em;
             font-weight: bold;
             display: flex;
             align-items: center;
@@ -128,7 +128,7 @@
         }
 
         .subtitle {
-            font-size: clamp(0.8rem, 3vw, 1.1rem); /* Адаптивный размер */
+            font-size: clamp(0.8rem, 3vw, 1rem);
             margin: 5px 0 0;
             color: #333;
             font-weight: bold;
@@ -140,7 +140,7 @@
             justify-content: center;
             gap: 10px;
             color: #000;
-            font-size: clamp(1rem, 4vw, 1.3rem); /* Адаптивный размер */
+            font-size: clamp(1rem, 4vw, 1.2rem);
             font-weight: bold;
             padding: 12px;
             border-radius: 8px;
@@ -230,7 +230,7 @@
         .features h3 {
             color: var(--yellow);
             margin-bottom: 10px;
-            font-size: clamp(1rem, 4vw, 1.3rem); /* Адаптивный размер */
+            font-size: clamp(1rem, 4vw, 1.2rem);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -242,7 +242,7 @@
 
         .features li {
             margin-bottom: 8px;
-            font-size: clamp(0.8rem, 3vw, 1.1rem); /* Адаптивный размер */
+            font-size: clamp(0.8rem, 3vw, 1rem);
         }
 
         .notification {
@@ -411,7 +411,7 @@
         .java-section h3 {
             color: #b0ffa9;
             margin-bottom: 12px;
-            font-size: clamp(1.1rem, 4vw, 1.3rem); /* Адаптивный размер */
+            font-size: clamp(1.1rem, 4vw, 1.3rem);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -494,8 +494,8 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: linear-gradient(90deg, var(--orange) 0%, var(--yellow) 100%);
             color: #000;
@@ -507,13 +507,6 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             cursor: pointer;
             transition: all 0.3s;
-        }
-
-        .ui-toggle i {
-            position: absolute; /* Центрирование иконки */
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
         }
 
         .ui-toggle:hover {
@@ -542,63 +535,6 @@
 
         body.ui-hidden .signature {
             opacity: 0;
-        }
-
-        /* Новые медиа-запросы для больших экранов */
-        @media (min-width: 1200px) {
-            .container {
-                max-width: 900px;
-            }
-            
-            h1 {
-                font-size: 3rem;
-            }
-            
-            .features li {
-                font-size: 1.1rem;
-            }
-        }
-
-        @media (min-width: 1600px) {
-            .container {
-                max-width: 1100px;
-            }
-            
-            h1 {
-                font-size: 3.5rem;
-            }
-            
-            .features li {
-                font-size: 1.2rem;
-            }
-        }
-
-        @media (min-width: 2000px) {
-            .container {
-                max-width: 1300px;
-            }
-            
-            .title-box {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 4rem;
-            }
-            
-            .btn {
-                padding: 16px;
-                font-size: 1.5rem;
-            }
-            
-            .features {
-                padding: 20px;
-            }
-            
-            .features li {
-                font-size: 1.3rem;
-                margin-bottom: 12px;
-            }
         }
 
         @media (max-width: 500px) {
@@ -630,8 +566,8 @@
                 justify-content: center;
             }
             .ui-toggle {
-                width: 40px;
-                height: 40px;
+                width: 45px;
+                height: 45px;
                 font-size: 1.3rem;
             }
         }
@@ -723,17 +659,18 @@
         const CHECK_INTERVAL = 15000;
         
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
-        const EMOJI_COUNT = 12;
-        const MIN_SPEED = 0.1;
-        const MAX_SPEED = 0.5;
+        const EMOJI_COUNT = 15;
+        const MIN_SPEED = 0.2;
+        const MAX_SPEED = 1.0;
         const INTERACTIVE_OPACITY = 0.15;
-        const REPULSION_FORCE = 0.01;
-        const MIN_DISTANCE = 120;
-        const DAMPING = 0.98;
-        const WIND_FORCE = 0.0002;
+        const REPULSION_FORCE = 0.03;
+        const MIN_DISTANCE = 100;
+        const DAMPING = 0.95;
+        const WIND_FORCE = 0.0005;
         const WIND_CHANGE_INTERVAL = 5000;
         const DRAG_HISTORY_SIZE = 5;
-        const INERTIA_MULTIPLIER = 0.5;
+        const INERTIA_MULTIPLIER = 0.9;
+        const BOOST_MULTIPLIER = 2.5;
         
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
@@ -758,6 +695,8 @@
             y: (Math.random() - 0.5) * WIND_FORCE,
             lastChange: 0
         };
+        let lastResize = 0;
+        const resizeDelay = 100;
 
         function init() {
             serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
@@ -769,11 +708,6 @@
             checkServerStatus();
             setInterval(checkServerStatus, CHECK_INTERVAL);
             setupEventListeners();
-            
-            // Исправление для больших экранов
-            if (window.innerWidth > 2000) {
-                document.body.style.zoom = "150%";
-            }
         }
 
         function createEmojiParticles() {
@@ -794,7 +728,8 @@
                     vy: (Math.random() - 0.5) * MAX_SPEED,
                     size: size,
                     rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 2
+                    rotationSpeed: (Math.random() - 0.5) * 3,
+                    isDragged: false
                 });
             }
         }
@@ -828,23 +763,25 @@
                 p.rotation += p.rotationSpeed;
                 p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
                 
-                // Исправление границ для больших экранов
-                const safeMargin = p.size * 2;
-                if (p.x < -safeMargin) p.x = window.innerWidth + safeMargin;
-                else if (p.x > window.innerWidth + safeMargin) p.x = -safeMargin;
+                // Улучшенная проверка границ
+                const padding = p.size * 0.5;
+                if (p.x < -padding) p.x = window.innerWidth + padding;
+                else if (p.x > window.innerWidth + padding) p.x = -padding;
                 
-                if (p.y < -safeMargin) p.y = window.innerHeight + safeMargin;
-                else if (p.y > window.innerHeight + safeMargin) p.y = -safeMargin;
+                if (p.y < -padding) p.y = window.innerHeight + padding;
+                else if (p.y > window.innerHeight + padding) p.y = -padding;
                 
                 p.element.style.left = `${p.x}px`;
                 p.element.style.top = `${p.y}px`;
                 
+                // Ограничение максимальной скорости
                 const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
                 if (speed > MAX_SPEED) {
                     p.vx = (p.vx / speed) * MAX_SPEED;
                     p.vy = (p.vy / speed) * MAX_SPEED;
                 }
                 
+                // Усиленное взаимодействие
                 for (let j = i + 1; j < emojiParticles.length; j++) {
                     const p2 = emojiParticles[j];
                     const dx = p.x - p2.x;
@@ -853,7 +790,12 @@
                     
                     if (distance < MIN_DISTANCE && distance > 0) {
                         const angle = Math.atan2(dy, dx);
-                        const force = Math.pow((MIN_DISTANCE - distance) / MIN_DISTANCE, 2) * REPULSION_FORCE;
+                        let force = Math.pow((MIN_DISTANCE - distance) / MIN_DISTANCE, 2) * REPULSION_FORCE;
+                        
+                        // Усиление при столкновении с перетаскиваемой частицей
+                        if (p.isDragged || p2.isDragged) {
+                            force *= BOOST_MULTIPLIER;
+                        }
                         
                         p.vx += force * Math.cos(angle);
                         p.vy += force * Math.sin(angle);
@@ -906,23 +848,14 @@
             window.addEventListener('touchcancel', endDrag);
             window.addEventListener('resize', handleResize);
             uiToggle.addEventListener('click', toggleUI);
-            handleResize();
+            adjustForSmallScreens();
         }
 
         function handleResize() {
-            // Пересчет позиций при ресайзе
-            emojiParticles.forEach(p => {
-                p.x = Math.min(p.x, window.innerWidth + p.size);
-                p.y = Math.min(p.y, window.innerHeight + p.size);
-                p.element.style.left = `${p.x}px`;
-                p.element.style.top = `${p.y}px`;
-            });
-            
-            // Адаптация для очень больших экранов
-            if (window.innerWidth > 2000) {
-                document.body.style.zoom = "150%";
-            } else {
-                document.body.style.zoom = "100%";
+            const now = Date.now();
+            if (now - lastResize > resizeDelay) {
+                adjustForSmallScreens();
+                lastResize = now;
             }
         }
 
@@ -945,6 +878,7 @@
                 isDragging = true;
                 dragEmoji = emojiParticles.find(p => p.element === e.target);
                 if (dragEmoji) {
+                    dragEmoji.isDragged = true;
                     dragEmoji.dragHistory = [];
                     dragEmoji.element.style.opacity = '0.3';
                     dragEmoji.element.style.zIndex = '100';
@@ -978,6 +912,7 @@
 
         function endDrag() {
             if (isDragging && dragEmoji) {
+                dragEmoji.isDragged = false;
                 dragEmoji.element.style.opacity = INTERACTIVE_OPACITY + '';
                 dragEmoji.element.style.zIndex = '0';
                 
@@ -1057,7 +992,28 @@
             playerCount.classList.remove('show');
         }
 
+        function adjustForSmallScreens() {
+            // Фикс для больших экранов и телевизоров
+            const isLargeScreen = window.innerWidth > 1600;
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isLargeScreen) {
+                document.querySelector('.container').style.maxWidth = '600px';
+            }
+            
+            // Плавное позиционирование для всех устройств
+            document.querySelectorAll('.server-status, .ui-toggle').forEach(el => {
+                el.style.transition = 'transform 0.3s ease';
+            });
+            
+            // Адаптация для режима эмуляции ПК на мобильных
+            const isDesktopMode = window.innerWidth > 768 && /Mobi|Android/i.test(navigator.userAgent);
+            document.querySelector('.java-section').style.display = 
+                (isDesktopMode || window.innerWidth >= 769) ? 'block' : 'none';
+        }
+
         window.addEventListener('load', init);
+        window.addEventListener('resize', handleResize);
     </script>
 </body>
 </html>

@@ -59,10 +59,12 @@
         .container {
             width: 100%;
             max-width: 500px;
+            min-width: 300px;
             padding: 15px;
             position: relative;
             z-index: 1;
             margin: 0 auto;
+            transition: transform 0.4s, opacity 0.4s;
         }
 
         .title-box {
@@ -313,6 +315,7 @@
             font-size: 0.7rem;
             color: #666;
             z-index: 10;
+            transition: opacity 0.3s;
         }
 
         .server-status {
@@ -329,7 +332,9 @@
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255,255,255,0.1);
             font-size: clamp(0.7rem, 3vw, 0.9rem);
-            max-width: 90%;
+            max-width: calc(100% - 20px);
+            transition: transform 0.3s;
+            transform-origin: top right;
         }
 
         .status-indicator {
@@ -344,13 +349,19 @@
 
         .status-indicator.online {
             background: var(--green);
-            animation: none;
+            animation: pulse-online 1.5s infinite;
         }
 
         @keyframes pulse {
             0% { opacity: 0.5; transform: scale(0.95); }
             50% { opacity: 1; transform: scale(1.05); }
             100% { opacity: 0.5; transform: scale(0.95); }
+        }
+
+        @keyframes pulse-online {
+            0% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.8; transform: scale(1); }
         }
 
         .player-count {
@@ -479,6 +490,53 @@
             text-align: center;
         }
 
+        .ui-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(90deg, var(--orange) 0%, var(--yellow) 100%);
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .ui-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .mobile-only {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-only {
+                display: block;
+            }
+        }
+
+        body.ui-hidden .container {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        body.ui-hidden .ui-toggle {
+            background: linear-gradient(90deg, var(--green) 0%, var(--java-green) 100%);
+        }
+
+        body.ui-hidden .signature {
+            opacity: 0;
+        }
+
         @media (max-width: 500px) {
             .container {
                 padding: 10px;
@@ -507,6 +565,11 @@
                 width: 100%;
                 justify-content: center;
             }
+            .ui-toggle {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
@@ -517,6 +580,10 @@
         <div class="status-indicator" id="status-indicator"></div>
         <span id="status-text">Проверка...</span>
         <span class="player-count" id="player-count"></span>
+    </div>
+
+    <div class="ui-toggle mobile-only" id="ui-toggle">
+        <i class="fas fa-eye-slash"></i>
     </div>
 
     <div class="container">
@@ -615,11 +682,13 @@
         const emojiContainer = document.getElementById('emoji-container');
         const clickSound = document.getElementById('click-sound');
         const creeperSound = document.getElementById('creeper-sound');
+        const uiToggle = document.getElementById('ui-toggle');
         
         let emojiParticles = [];
         let lastTime = 0;
         let isDragging = false;
         let dragEmoji = null;
+        let uiVisible = true;
         let wind = {
             x: (Math.random() - 0.5) * WIND_FORCE,
             y: (Math.random() - 0.5) * WIND_FORCE,
@@ -758,14 +827,29 @@
             });
 
             emojiContainer.addEventListener('mousedown', startDrag);
-            emojiContainer.addEventListener('touchstart', startDrag, { passive: false });
+            emojiContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
             window.addEventListener('mousemove', drag);
-            window.addEventListener('touchmove', drag, { passive: false });
+            window.addEventListener('touchmove', handleTouchMove, { passive: false });
             window.addEventListener('mouseup', endDrag);
             window.addEventListener('touchend', endDrag);
             window.addEventListener('touchcancel', endDrag);
             window.addEventListener('resize', adjustForSmallScreens);
+            uiToggle.addEventListener('click', toggleUI);
             adjustForSmallScreens();
+        }
+
+        function handleTouchStart(e) {
+            if (e.target.classList.contains('emoji-particle')) {
+                e.preventDefault();
+                startDrag(e);
+            }
+        }
+
+        function handleTouchMove(e) {
+            if (isDragging) {
+                e.preventDefault();
+                drag(e);
+            }
         }
 
         function startDrag(e) {
@@ -777,6 +861,7 @@
                     dragEmoji.element.style.opacity = '0.3';
                     dragEmoji.element.style.zIndex = '100';
                     playCreeperSound();
+                    document.body.style.overflow = 'hidden';
                 }
             }
         }
@@ -820,9 +905,17 @@
                 }
                 
                 playCreeperSound();
+                document.body.style.overflow = '';
             }
             isDragging = false;
             dragEmoji = null;
+        }
+
+        function toggleUI() {
+            uiVisible = !uiVisible;
+            document.body.classList.toggle('ui-hidden', !uiVisible);
+            uiToggle.innerHTML = uiVisible ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+            playClickSound();
         }
 
         function playClickSound() {

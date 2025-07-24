@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft Bedrock 1.21.90 | Выживание</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minecraft Bedrock 1.21.90 & Java 1.21.6 | Выживание</title>
     <style>
         :root {
             --yellow: #ffeb3b;
@@ -12,12 +12,17 @@
             --gray: #2b2b2b;
             --green: #4CAF50;
             --red: #f44336;
+            --java-orange: #f89820;
+            --java-dark-orange: #d97e0d;
+            --bedrock-blue: #5b8cff;
+            --bedrock-dark-blue: #3a6dd8;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -30,24 +35,25 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 15px;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         .container {
             width: 100%;
             max-width: 500px;
-            padding: 20px;
+            padding: 15px;
             position: relative;
             z-index: 1;
+            margin: 0 auto;
         }
 
         .title-box {
             background: linear-gradient(90deg, var(--yellow) 0%, var(--orange) 100%);
             border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 25px;
+            padding: 12px;
+            margin-bottom: 20px;
             box-shadow: 0 0 20px rgba(255, 235, 59, 0.5);
             animation: glow 2s infinite alternate;
         }
@@ -58,25 +64,41 @@
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            word-break: break-word;
         }
 
+        .versions-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        
         .version-badge {
             background: #000;
-            color: var(--yellow);
-            padding: 3px 10px;
+            color: white;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.9em;
-            display: inline-block;
-            margin-top: 8px;
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
             font-weight: bold;
+            display: inline-block;
+        }
+        
+        .version-badge.bedrock {
+            background: linear-gradient(90deg, var(--bedrock-blue) 0%, var(--bedrock-dark-blue) 100%);
+        }
+        
+        .version-badge.java {
+            background: linear-gradient(90deg, var(--java-orange) 0%, var(--java-dark-orange) 100%);
         }
 
         .subtitle {
-            font-size: 1rem;
-            margin: 5px 0 0;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+            margin: 8px 0 0;
             color: #333;
             font-weight: bold;
         }
@@ -84,12 +106,12 @@
         .btn {
             display: block;
             color: #000;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 4vw, 1.2rem);
             font-weight: bold;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
             text-decoration: none;
-            margin: 15px 0;
+            margin: 12px 0;
             border: none;
             cursor: pointer;
             width: 100%;
@@ -103,6 +125,15 @@
 
         .btn-server:hover {
             box-shadow: 0 0 15px var(--orange);
+        }
+        
+        .btn-java {
+            background: linear-gradient(90deg, var(--java-orange) 0%, var(--java-dark-orange) 100%);
+            color: white;
+        }
+        
+        .btn-java:hover {
+            box-shadow: 0 0 15px var(--java-orange);
         }
 
         .btn-download {
@@ -121,15 +152,15 @@
         .features {
             background: rgba(0, 0, 0, 0.3);
             border-radius: 8px;
-            padding: 15px;
-            margin: 25px 0;
+            padding: 12px;
+            margin: 20px 0;
             text-align: left;
         }
 
         .features h3 {
             color: var(--yellow);
             margin-bottom: 10px;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 4vw, 1.2rem);
         }
 
         .features ul {
@@ -138,16 +169,29 @@
 
         .features li {
             margin-bottom: 8px;
+            font-size: clamp(0.8rem, 3vw, 1rem);
         }
 
         .notification {
             background: rgba(0, 0, 0, 0.7);
             border-left: 3px solid var(--yellow);
-            padding: 12px;
-            margin: 20px 0;
+            padding: 10px;
+            margin: 15px 0;
             border-radius: 5px;
             display: none;
             animation: fadeIn 0.5s;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+        }
+        
+        .java-info {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 0 0 15px;
+            text-align: center;
+            display: none;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+            border: 1px dashed var(--java-orange);
         }
 
         @keyframes fadeIn {
@@ -157,7 +201,7 @@
 
         .creeper {
             position: absolute;
-            font-size: 3rem;
+            font-size: clamp(2rem, 8vw, 3rem);
             opacity: 0.08;
             z-index: 0;
             animation: float linear infinite;
@@ -176,7 +220,7 @@
             position: fixed;
             bottom: 10px;
             left: 10px;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #666;
         }
 
@@ -186,22 +230,25 @@
             right: 10px;
             background: rgba(0,0,0,0.7);
             border-radius: 10px;
-            padding: 10px 15px;
+            padding: 8px 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             z-index: 100;
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255,255,255,0.1);
+            font-size: clamp(0.7rem, 3vw, 0.9rem);
+            max-width: 90%;
         }
 
         .status-indicator {
-            width: 14px;
-            height: 14px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: var(--red);
             animation: pulse 2s infinite;
             box-shadow: 0 0 5px currentColor;
+            flex-shrink: 0;
         }
 
         .status-indicator.online {
@@ -216,10 +263,11 @@
         }
 
         .player-count {
-            font-size: 0.9rem;
+            font-size: clamp(0.7rem, 3vw, 0.9rem);
             color: var(--yellow);
             font-weight: bold;
             display: none;
+            white-space: nowrap;
         }
 
         .player-count.show {
@@ -228,8 +276,30 @@
 
         #status-text {
             font-weight: 500;
-            min-width: 90px;
+            min-width: 70px;
             text-align: left;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 10px;
+            }
+            .title-box {
+                padding: 10px;
+            }
+            .btn {
+                padding: 10px;
+            }
+            .features {
+                padding: 10px;
+            }
+            .server-status {
+                padding: 6px 10px;
+            }
+            .version-badge {
+                padding: 3px 8px;
+            }
         }
     </style>
 </head>
@@ -249,8 +319,16 @@
     <div class="container">
         <div class="title-box">
             <h1>ВЫЖИВАНИЕ</h1>
-            <div class="version-badge">1.21.90</div>
+            <div class="versions-container">
+                <div class="version-badge bedrock">Bedrock 1.21.90</div>
+                <div class="version-badge java">Java 1.21.6</div>
+            </div>
             <p class="subtitle">Свиньям вход запрещён</p>
+        </div>
+
+        <div id="java-info" class="java-info">
+            Игроки <strong>Java Edition</strong> должны использовать IP:<br>
+            <strong id="ip-display">88.151.117.88:25622</strong>
         </div>
 
         <div class="features">
@@ -267,31 +345,47 @@
             </ul>
         </div>
 
-        <a id="server-btn" href="minecraft://?addExternalServer=Выживание|88.151.117.88:25622" class="btn btn-server">ДОБАВИТЬ СЕРВЕР</a>
+        <a id="server-btn" href="minecraft://?addExternalServer=Выживание|88.151.117.88:25622" class="btn btn-server">ДОБАВИТЬ СЕРВЕР (BEDROCK)</a>
+        <button id="copy-java" class="btn btn-java">СКОПИРОВАТЬ IP ДЛЯ JAVA</button>
         <a href="https://mcpefox.com/wp-content/uploads/2025/06/minecraft-1-21-92-arm64-v8a-music.apk" class="btn btn-download">СКАЧАТЬ MINECRAFT</a>
 
         <div id="notification" class="notification">
             Сервер добавлен!<br>
             <small>Те, кто не играют — по лбу получают</small>
         </div>
+        
+        <div id="java-notification" class="notification">
+            IP:PORT скопирован!<br>
+            <small>Вставьте его в клиент Java</small>
+        </div>
     </div>
 
     <div class="signature">Made by VSakoe</div>
 
     <script>
-        const CLOUDFLARE_WORKER_URL = "https://ancient-boat-f904.dimakavyrsin1506.workers.dev/"; // Замените на ваш URL Worker
+        // ========== НАСТРОЙКИ СЕРВЕРА ========== //
         const SERVER_IP = "88.151.117.88";
         const SERVER_PORT = "25622";
-        const CHECK_INTERVAL = 60000; 
-
+        const CHECK_INTERVAL = 15000;
+        // ======================================= //
+        
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
         const playerCount = document.getElementById('player-count');
+        const serverBtn = document.getElementById('server-btn');
+        const javaInfo = document.getElementById('java-info');
+
+        // Показать блок для Java при обнаружении ПК
+        if (!/Mobi|Android/i.test(navigator.userAgent)) {
+            javaInfo.style.display = 'block';
+        }
+
+        // Обновляем ссылку для подключения
+        serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
 
         async function checkServerStatus() {
             try {
-                const response = await fetch(${CLOUDFLARE_WORKER_URL}?ip=${SERVER_IP}&port=${SERVER_PORT});
-                
+                const response = await fetch(`/status.php?t=${Date.now()}`);
                 if (!response.ok) throw new Error('Ошибка сети');
                 
                 const data = await response.json();
@@ -301,26 +395,29 @@
                     statusText.textContent = 'Онлайн';
                     
                     if (data.players) {
-                        playerCount.textContent = ${data.players.online} из ${data.players.max};
+                        playerCount.textContent = `${data.players.online} из ${data.players.max}`;
                         playerCount.classList.add('show');
-                    } else {
-                        playerCount.textContent = 'Данные игроков недоступны';
                     }
                 } else {
-                    throw new Error('Сервер не отвечает');
+                    setOfflineStatus();
                 }
             } catch (error) {
-                console.error('Ошибка проверки:', error);
-                statusIndicator.classList.remove('online');
-                statusText.textContent = 'Оффлайн';
-                playerCount.classList.remove('show');
+                setOfflineStatus();
             }
         }
 
+        function setOfflineStatus() {
+            statusIndicator.classList.remove('online');
+            statusText.textContent = 'Оффлайн';
+            playerCount.classList.remove('show');
+        }
+
+        // Первая проверка и интервал
         checkServerStatus();
         setInterval(checkServerStatus, CHECK_INTERVAL);
 
-        document.getElementById('server-btn').addEventListener('click', function(e) {
+        // Обработка кнопки "Добавить сервер"
+        serverBtn.addEventListener('click', function(e) {
             if (!/Mobi|Android/i.test(navigator.userAgent)) {
                 e.preventDefault();
                 document.getElementById('notification').style.display = 'block';
@@ -330,28 +427,54 @@
             }
         });
 
-        document.querySelectorAll('.creeper').forEach(creeper => {
-            creeper.style.animationDuration = ${40 + Math.random() * 30}s;
+        // Обработчик копирования IP для Java
+        document.getElementById('copy-java').addEventListener('click', function() {
+            const ipPort = `${SERVER_IP}:${SERVER_PORT}`;
+            
+            // Копирование в буфер обмена
+            navigator.clipboard.writeText(ipPort).then(() => {
+                const notification = document.getElementById('java-notification');
+                notification.style.display = 'block';
+                
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }).catch(err => {
+                // Fallback для старых браузеров
+                const textArea = document.createElement('textarea');
+                textArea.value = ipPort;
+                document.body.appendChild(textArea);
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    const notification = document.getElementById('java-notification');
+                    notification.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        notification.style.display = 'none';
+                    }, 3000);
+                } catch (e) {
+                    alert('Не удалось скопировать: ' + e);
+                }
+                
+                document.body.removeChild(textArea);
+            });
         });
 
-        function fallbackCheck() {
-            const img = new Image();
-            img.src = http:
-            img.onload = () => {
-                if (!statusIndicator.classList.contains('online')) {
-                    statusIndicator.classList.add('online');
-                    statusText.textContent = 'Онлайн (Fallback)';
-                }
-            };
-            img.onerror = () => {
-                if (statusText.textContent.includes('Fallback')) {
-                    statusIndicator.classList.remove('online');
-                    statusText.textContent = 'Оффлайн';
-                }
-            };
+        // Анимация криперов
+        document.querySelectorAll('.creeper').forEach(creeper => {
+            creeper.style.animationDuration = `${40 + Math.random() * 30}s`;
+        });
+
+        // Адаптация для очень маленьких экранов
+        function adjustForSmallScreens() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
         }
 
-        setTimeout(fallbackCheck, 10000);
+        window.addEventListener('resize', adjustForSmallScreens);
+        adjustForSmallScreens();
     </script>
 </body>
 </html>

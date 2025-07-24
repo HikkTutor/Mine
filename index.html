@@ -559,26 +559,20 @@
         const javaInfo = document.getElementById('java-info');
         const copyJavaBtn = document.getElementById('copy-java-btn');
 
-        // Улучшенное определение типа устройства
+        // Функция для принудительного показа Java-блока
+        window.enableJavaUI = function() {
+            javaInfo.style.display = 'block';
+            console.log("Java UI включен принудительно");
+        };
+        
+        // Проверка типа устройства по размеру экрана
         function isDesktopDevice() {
-            // Проверка по user agent
-            const userAgent = navigator.userAgent.toLowerCase();
-            
-            // Исключаем мобильные устройства и планшеты
-            const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-            
-            // Проверка на планшеты (iPad в Safari на iOS 13+)
-            const isTablet = /ipad|tablet|playbook|silk|kindle|(android(?!.*mobile))/i.test(userAgent);
-            
-            // Проверка на сенсорные устройства
-            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-            
-            // Если это не мобильное и не планшет, считаем ПК
-            return !isMobile && !isTablet;
+            // Ширина экрана больше 1024px или устройство поддерживает мышь
+            return window.innerWidth > 1024 || window.matchMedia("(pointer: fine)").matches;
         }
 
-        // Показать блок для Java только на ПК
-        if (isDesktopDevice()) {
+        // Показать блок для Java на ПК и планшетах
+        if (isDesktopDevice() || window.forceJavaUI) {
             javaInfo.style.display = 'block';
         } else {
             javaInfo.style.display = 'none';
@@ -590,21 +584,15 @@
         // Функция для проверки статуса сервера
         async function checkServerStatus() {
             try {
-                // В реальном проекте здесь должен быть запрос к вашему API
-                // Для демонстрации используем эмуляцию запроса
+                // В реальном проекте используйте:
+                // const response = await fetch(`/status.php?t=${Date.now()}`);
+                // const data = await response.json();
                 
-                // Эмуляция запроса - замените на реальный fetch
-                /*
-                const response = await fetch(`/status.php?t=${Date.now()}`);
-                if (!response.ok) throw new Error('Ошибка сети');
-                const data = await response.json();
-                */
-                
-                // Заглушка с эмуляцией ответа
+                // Для демонстрации используем эмуляцию ответа
                 const data = {
-                    online: true,
+                    online: Math.random() > 0.2, // 80% шанс что онлайн
                     players: {
-                        online: 12,
+                        online: Math.floor(Math.random() * 15) + 5,
                         max: 20
                     }
                 };

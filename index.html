@@ -516,7 +516,6 @@
     </style>
 </head>
 <body>
-    <!-- Эмодзи теперь создаются динамически через JS -->
     <div id="emoji-container"></div>
     
     <div class="server-status">
@@ -561,7 +560,6 @@
             <i class="fas fa-download"></i> СКАЧАТЬ MINECRAFT
         </a>
         
-        <!-- Java секция (только для ПК) -->
         <div class="java-section desktop-only">
             <div class="java-content">
                 <div class="java-info">
@@ -578,7 +576,6 @@
         </div>
     </div>
 
-    <!-- Универсальное уведомление -->
     <div id="universal-notification" class="notification">
         <i class="fas fa-check-circle"></i>
         <div id="notification-text"></div>
@@ -586,7 +583,6 @@
 
     <div class="signature">Made by VSakoe</div>
 
-    <!-- Аудио для звуковых эффектов -->
     <audio id="click-sound" preload="auto">
         <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
     </audio>
@@ -605,9 +601,10 @@
         // ========== НАСТРОЙКИ ЭМОДЗИ ========== //
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
         const EMOJI_COUNT = 12;
-        const MIN_SPEED = 0.2;
-        const MAX_SPEED = 1.5;
+        const MIN_SPEED = 0.1; // Уменьшена минимальная скорость
+        const MAX_SPEED = 0.6; // Уменьшена максимальная скорость
         const INTERACTIVE_OPACITY = 0.15;
+        const FRICTION = 0.98; // Трение для плавного замедления
         // ======================================= //
 
         const statusIndicator = document.getElementById('status-indicator');
@@ -622,33 +619,22 @@
         const clickSound = document.getElementById('click-sound');
         const creeperSound = document.getElementById('creeper-sound');
         
-        // Массив для хранения данных об эмодзи
         let emojiParticles = [];
         let lastTime = 0;
         let isDragging = false;
         let dragEmoji = null;
 
-        // Инициализация
         function init() {
-            // Обновляем ссылку для подключения
             serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
             javaIp.textContent = `${SERVER_IP}:${SERVER_PORT}`;
             
-            // Создаем интерактивные эмодзи
             createEmojiParticles();
-            
-            // Запускаем анимацию
             requestAnimationFrame(animateEmojis);
-            
-            // Запускаем проверку статуса сервера
             checkServerStatus();
             setInterval(checkServerStatus, CHECK_INTERVAL);
-            
-            // Добавляем обработчики событий
             setupEventListeners();
         }
 
-        // Создание частиц-эмодзи
         function createEmojiParticles() {
             for (let i = 0; i < EMOJI_COUNT; i++) {
                 const emoji = document.createElement('div');
@@ -656,7 +642,6 @@
                 emoji.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
                 emojiContainer.appendChild(emoji);
                 
-                // Начальная позиция и скорость
                 const size = 30 + Math.random() * 30;
                 emoji.style.fontSize = `${size}px`;
                 
@@ -664,16 +649,15 @@
                     element: emoji,
                     x: Math.random() * window.innerWidth,
                     y: Math.random() * window.innerHeight,
-                    vx: (Math.random() - 0.5) * MAX_SPEED * 2,
-                    vy: (Math.random() - 0.5) * MAX_SPEED * 2,
+                    vx: (Math.random() - 0.5) * MAX_SPEED,
+                    vy: (Math.random() - 0.5) * MAX_SPEED,
                     size: size,
                     rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 4
+                    rotationSpeed: (Math.random() - 0.5) * 2
                 });
             }
         }
 
-        // Анимация эмодзи с физикой
         function animateEmojis(timestamp) {
             const deltaTime = timestamp - lastTime || 16;
             lastTime = timestamp;
@@ -683,15 +667,19 @@
                 
                 if (p === dragEmoji && isDragging) continue;
                 
-                // Обновление позиции
+                // Применяем трение для плавного замедления
+                p.vx *= FRICTION;
+                p.vy *= FRICTION;
+                
+                // Игнорируем микроскорости
+                if (Math.abs(p.vx) < 0.01) p.vx = 0;
+                if (Math.abs(p.vy) < 0.01) p.vy = 0;
+                
                 p.x += p.vx * deltaTime;
                 p.y += p.vy * deltaTime;
-                
-                // Обновление вращения
                 p.rotation += p.rotationSpeed;
                 p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
                 
-                // Проверка границ
                 if (p.x < p.size/2) {
                     p.x = p.size/2;
                     p.vx = Math.abs(p.vx) * 0.8;
@@ -708,11 +696,9 @@
                     p.vy = -Math.abs(p.vy) * 0.8;
                 }
                 
-                // Применение позиции
                 p.element.style.left = `${p.x}px`;
                 p.element.style.top = `${p.y}px`;
                 
-                // Проверка столкновений
                 for (let j = i + 1; j < emojiParticles.length; j++) {
                     const p2 = emojiParticles[j];
                     const dx = p.x - p2.x;
@@ -721,20 +707,19 @@
                     const minDistance = (p.size + p2.size) / 2;
                     
                     if (distance < minDistance) {
-                        // Эффект столкновения
                         const angle = Math.atan2(dy, dx);
                         const targetX = p.x + Math.cos(angle) * minDistance;
                         const targetY = p.y + Math.sin(angle) * minDistance;
                         
-                        const ax = (targetX - p2.x) * 0.05;
-                        const ay = (targetY - p2.y) * 0.05;
+                        // Уменьшенная сила отталкивания
+                        const ax = (targetX - p2.x) * 0.015;
+                        const ay = (targetY - p2.y) * 0.015;
                         
                         p.vx -= ax;
                         p.vy -= ay;
                         p2.vx += ax;
                         p2.vy += ay;
                         
-                        // Звук столкновения (тихий)
                         if (Math.random() > 0.7) {
                             creeperSound.currentTime = 0;
                             creeperSound.volume = 0.1;
@@ -747,9 +732,7 @@
             requestAnimationFrame(animateEmojis);
         }
 
-        // Настройка обработчиков событий
         function setupEventListeners() {
-            // Обработка клика по серверу
             serverBtn.addEventListener('click', function(e) {
                 playClickSound();
                 if (!/Mobi|Android/i.test(navigator.userAgent)) {
@@ -761,7 +744,6 @@
                 }
             });
 
-            // Обработка кнопки "Копировать"
             javaCopyBtn.addEventListener('click', function() {
                 playClickSound();
                 const textToCopy = `${SERVER_IP}:${SERVER_PORT}`;
@@ -777,23 +759,17 @@
                 });
             });
 
-            // Обработка кликов по эмодзи
             emojiContainer.addEventListener('mousedown', startDrag);
             emojiContainer.addEventListener('touchstart', startDrag, { passive: false });
-            
             window.addEventListener('mousemove', drag);
             window.addEventListener('touchmove', drag, { passive: false });
-            
             window.addEventListener('mouseup', endDrag);
             window.addEventListener('touchend', endDrag);
             window.addEventListener('touchcancel', endDrag);
-            
-            // Обработка ресайза окна
             window.addEventListener('resize', adjustForSmallScreens);
             adjustForSmallScreens();
         }
 
-        // Начать перетаскивание эмодзи
         function startDrag(e) {
             if (e.target.classList.contains('emoji-particle')) {
                 isDragging = true;
@@ -806,7 +782,6 @@
             }
         }
 
-        // Перетаскивание эмодзи
         function drag(e) {
             if (!isDragging || !dragEmoji) return;
             
@@ -819,15 +794,14 @@
             dragEmoji.element.style.top = `${clientY}px`;
         }
 
-        // Завершение перетаскивания
         function endDrag() {
             if (isDragging && dragEmoji) {
                 dragEmoji.element.style.opacity = INTERACTIVE_OPACITY + '';
                 dragEmoji.element.style.zIndex = '0';
                 
-                // Придаем случайное ускорение
-                dragEmoji.vx = (Math.random() - 0.5) * MAX_SPEED * 3;
-                dragEmoji.vy = (Math.random() - 0.5) * MAX_SPEED * 3;
+                // Умеренная скорость после броска
+                dragEmoji.vx = (Math.random() - 0.5) * MAX_SPEED;
+                dragEmoji.vy = (Math.random() - 0.5) * MAX_SPEED;
                 
                 playCreeperSound();
             }
@@ -835,21 +809,18 @@
             dragEmoji = null;
         }
 
-        // Воспроизведение звука клика
         function playClickSound() {
             clickSound.currentTime = 0;
             clickSound.volume = 0.3;
             clickSound.play().catch(e => console.log("Audio play error:", e));
         }
 
-        // Воспроизведение звука крипера
         function playCreeperSound() {
             creeperSound.currentTime = 0;
             creeperSound.volume = 0.2;
             creeperSound.play().catch(e => console.log("Audio play error:", e));
         }
 
-        // Функция показа уведомлений
         function showNotification(message, isJava = false) {
             notificationText.innerHTML = message;
             universalNotification.className = 'notification' + (isJava ? ' java' : '');
@@ -860,7 +831,6 @@
             }, 3000);
         }
 
-        // Проверка статуса сервера
         async function checkServerStatus() {
             try {
                 const response = await fetch(`/status.php?t=${Date.now()}`);
@@ -890,15 +860,12 @@
             playerCount.classList.remove('show');
         }
 
-        // Адаптация для маленьких экранов
         function adjustForSmallScreens() {
-            // Обновляем видимость Java-элементов
             document.querySelectorAll('.java-badge, .java-section').forEach(el => {
                 el.style.display = window.innerWidth >= 769 ? 'flex' : 'none';
             });
         }
 
-        // Инициализация при загрузке
         window.addEventListener('load', init);
     </script>
 </body>

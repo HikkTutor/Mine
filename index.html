@@ -494,19 +494,22 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: linear-gradient(90deg, var(--orange) 0%, var(--yellow) 100%);
             color: #000;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             z-index: 1000;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
             cursor: pointer;
             transition: all 0.3s;
+            padding: 0;
+            margin: 0;
+            border: none;
         }
 
         .ui-toggle:hover {
@@ -566,9 +569,27 @@
                 justify-content: center;
             }
             .ui-toggle {
-                width: 45px;
-                height: 45px;
-                font-size: 1.3rem;
+                width: 35px;
+                height: 35px;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 550px;
+            }
+        }
+
+        @media (min-width: 1600px) {
+            .container {
+                max-width: 600px;
+            }
+        }
+
+        @media (min-width: 2000px) {
+            .container {
+                max-width: 650px;
             }
         }
     </style>
@@ -659,18 +680,17 @@
         const CHECK_INTERVAL = 15000;
         
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
-        const EMOJI_COUNT = 15;
-        const MIN_SPEED = 0.2;
-        const MAX_SPEED = 1.0;
+        const EMOJI_COUNT = 12;
+        const MIN_SPEED = 0.1;
+        const MAX_SPEED = 1.0;  // Увеличена максимальная скорость
         const INTERACTIVE_OPACITY = 0.15;
-        const REPULSION_FORCE = 0.03;
-        const MIN_DISTANCE = 100;
-        const DAMPING = 0.95;
-        const WIND_FORCE = 0.0005;
+        const REPULSION_FORCE = 0.02;  // Увеличена сила отталкивания
+        const MIN_DISTANCE = 100;  // Уменьшено минимальное расстояние
+        const DAMPING = 0.98;
+        const WIND_FORCE = 0.0003;  // Увеличена сила ветра
         const WIND_CHANGE_INTERVAL = 5000;
         const DRAG_HISTORY_SIZE = 5;
-        const INERTIA_MULTIPLIER = 0.9;
-        const BOOST_MULTIPLIER = 2.5;
+        const INERTIA_MULTIPLIER = 0.8;  // Увеличена инерция
         
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
@@ -695,8 +715,6 @@
             y: (Math.random() - 0.5) * WIND_FORCE,
             lastChange: 0
         };
-        let lastResize = 0;
-        const resizeDelay = 100;
 
         function init() {
             serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
@@ -728,8 +746,7 @@
                     vy: (Math.random() - 0.5) * MAX_SPEED,
                     size: size,
                     rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 3,
-                    isDragged: false
+                    rotationSpeed: (Math.random() - 0.5) * 2
                 });
             }
         }
@@ -763,25 +780,23 @@
                 p.rotation += p.rotationSpeed;
                 p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
                 
-                // Улучшенная проверка границ
-                const padding = p.size * 0.5;
-                if (p.x < -padding) p.x = window.innerWidth + padding;
-                else if (p.x > window.innerWidth + padding) p.x = -padding;
+                // Улучшенная обработка границ экрана
+                const safeMargin = p.size * 2;
+                if (p.x < -safeMargin) p.x = window.innerWidth + safeMargin;
+                else if (p.x > window.innerWidth + safeMargin) p.x = -safeMargin;
                 
-                if (p.y < -padding) p.y = window.innerHeight + padding;
-                else if (p.y > window.innerHeight + padding) p.y = -padding;
+                if (p.y < -safeMargin) p.y = window.innerHeight + safeMargin;
+                else if (p.y > window.innerHeight + safeMargin) p.y = -safeMargin;
                 
                 p.element.style.left = `${p.x}px`;
                 p.element.style.top = `${p.y}px`;
                 
-                // Ограничение максимальной скорости
                 const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
                 if (speed > MAX_SPEED) {
                     p.vx = (p.vx / speed) * MAX_SPEED;
                     p.vy = (p.vy / speed) * MAX_SPEED;
                 }
                 
-                // Усиленное взаимодействие
                 for (let j = i + 1; j < emojiParticles.length; j++) {
                     const p2 = emojiParticles[j];
                     const dx = p.x - p2.x;
@@ -790,17 +805,15 @@
                     
                     if (distance < MIN_DISTANCE && distance > 0) {
                         const angle = Math.atan2(dy, dx);
-                        let force = Math.pow((MIN_DISTANCE - distance) / MIN_DISTANCE, 2) * REPULSION_FORCE;
+                        const force = Math.pow((MIN_DISTANCE - distance) / MIN_DISTANCE, 2) * REPULSION_FORCE;
                         
-                        // Усиление при столкновении с перетаскиваемой частицей
-                        if (p.isDragged || p2.isDragged) {
-                            force *= BOOST_MULTIPLIER;
-                        }
+                        // Усиленное отталкивание для активного эмодзи
+                        const multiplier = (dragEmoji === p || dragEmoji === p2) ? 2.0 : 1.0;
                         
-                        p.vx += force * Math.cos(angle);
-                        p.vy += force * Math.sin(angle);
-                        p2.vx -= force * Math.cos(angle);
-                        p2.vy -= force * Math.sin(angle);
+                        p.vx += force * Math.cos(angle) * multiplier;
+                        p.vy += force * Math.sin(angle) * multiplier;
+                        p2.vx -= force * Math.cos(angle) * multiplier;
+                        p2.vy -= force * Math.sin(angle) * multiplier;
                         
                         if (Math.random() > 0.95) {
                             playCreeperSound();
@@ -846,17 +859,27 @@
             window.addEventListener('mouseup', endDrag);
             window.addEventListener('touchend', endDrag);
             window.addEventListener('touchcancel', endDrag);
-            window.addEventListener('resize', handleResize);
+            window.addEventListener('resize', adjustForSmallScreens);
             uiToggle.addEventListener('click', toggleUI);
             adjustForSmallScreens();
-        }
-
-        function handleResize() {
-            const now = Date.now();
-            if (now - lastResize > resizeDelay) {
-                adjustForSmallScreens();
-                lastResize = now;
-            }
+            
+            // Обработка масштабирования
+            let lastScale = 1;
+            window.addEventListener('wheel', (e) => {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    const scale = e.deltaY > 0 ? 0.9 : 1.1;
+                    lastScale *= scale;
+                    
+                    // Пересчет позиций эмодзи при масштабировании
+                    emojiParticles.forEach(p => {
+                        p.x = (p.x - window.innerWidth/2) * scale + window.innerWidth/2;
+                        p.y = (p.y - window.innerHeight/2) * scale + window.innerHeight/2;
+                        p.vx *= scale;
+                        p.vy *= scale;
+                    });
+                }
+            }, { passive: false });
         }
 
         function handleTouchStart(e) {
@@ -878,7 +901,6 @@
                 isDragging = true;
                 dragEmoji = emojiParticles.find(p => p.element === e.target);
                 if (dragEmoji) {
-                    dragEmoji.isDragged = true;
                     dragEmoji.dragHistory = [];
                     dragEmoji.element.style.opacity = '0.3';
                     dragEmoji.element.style.zIndex = '100';
@@ -912,7 +934,6 @@
 
         function endDrag() {
             if (isDragging && dragEmoji) {
-                dragEmoji.isDragged = false;
                 dragEmoji.element.style.opacity = INTERACTIVE_OPACITY + '';
                 dragEmoji.element.style.zIndex = '0';
                 
@@ -993,27 +1014,12 @@
         }
 
         function adjustForSmallScreens() {
-            // Фикс для больших экранов и телевизоров
-            const isLargeScreen = window.innerWidth > 1600;
-            const isMobile = window.innerWidth <= 768;
-            
-            if (isLargeScreen) {
-                document.querySelector('.container').style.maxWidth = '600px';
-            }
-            
-            // Плавное позиционирование для всех устройств
-            document.querySelectorAll('.server-status, .ui-toggle').forEach(el => {
-                el.style.transition = 'transform 0.3s ease';
+            document.querySelectorAll('.java-badge, .java-section').forEach(el => {
+                el.style.display = window.innerWidth >= 769 ? 'flex' : 'none';
             });
-            
-            // Адаптация для режима эмуляции ПК на мобильных
-            const isDesktopMode = window.innerWidth > 768 && /Mobi|Android/i.test(navigator.userAgent);
-            document.querySelector('.java-section').style.display = 
-                (isDesktopMode || window.innerWidth >= 769) ? 'block' : 'none';
         }
 
         window.addEventListener('load', init);
-        window.addEventListener('resize', handleResize);
     </script>
 </body>
 </html>

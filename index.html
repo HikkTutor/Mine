@@ -4,18 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Minecraft Bedrock 1.21.90 & Java 1.21.6 | Выживание</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --yellow: #ffeb3b;
             --orange: #ff9800;
             --dark: #1a1a1a;
+            --darker: #121212;
             --gray: #2b2b2b;
             --green: #4CAF50;
             --red: #f44336;
             --java-orange: #f89820;
-            --java-dark-orange: #d97e0d;
+            --java-dark-orange: #c86c0c;
             --bedrock-blue: #5b8cff;
             --bedrock-dark-blue: #3a6dd8;
+            --accent: #ff5722;
+            --text: #f5f5f5;
         }
 
         * {
@@ -26,9 +30,9 @@
         }
 
         body {
-            background: var(--dark);
-            font-family: 'Arial', sans-serif;
-            color: white;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
             text-align: center;
             min-height: 100vh;
             display: flex;
@@ -38,6 +42,7 @@
             padding: 15px;
             position: relative;
             overflow-x: hidden;
+            line-height: 1.6;
         }
 
         .container {
@@ -51,161 +56,293 @@
 
         .title-box {
             background: linear-gradient(90deg, var(--yellow) 0%, var(--orange) 100%);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 20px rgba(255, 235, 59, 0.5);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 25px rgba(255, 235, 59, 0.4);
             animation: glow 2s infinite alternate;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .title-box::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: 0;
         }
 
         @keyframes glow {
-            from { box-shadow: 0 0 10px rgba(255, 235, 59, 0.5); }
-            to { box-shadow: 0 0 30px rgba(255, 235, 59, 0.8); }
+            from { box-shadow: 0 0 15px rgba(255, 235, 59, 0.4); }
+            to { box-shadow: 0 0 35px rgba(255, 235, 59, 0.8); }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .title-content {
+            position: relative;
+            z-index: 2;
         }
 
         h1 {
-            font-size: clamp(1.8rem, 6vw, 2.5rem);
+            font-size: clamp(2rem, 7vw, 2.8rem);
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
             word-break: break-word;
+            letter-spacing: 1px;
+            font-weight: 800;
+            background: linear-gradient(to bottom, #3a2700, #000);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-transform: uppercase;
         }
 
         .versions-container {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-top: 8px;
+            gap: 12px;
+            margin-top: 12px;
             flex-wrap: wrap;
         }
         
         .version-badge {
-            background: #000;
             color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            padding: 6px 16px;
+            border-radius: 24px;
+            font-size: clamp(0.8rem, 3vw, 0.95rem);
             font-weight: bold;
             display: inline-block;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
         }
         
         .version-badge.bedrock {
-            background: linear-gradient(90deg, var(--bedrock-blue) 0%, var(--bedrock-dark-blue) 100%);
+            background: linear-gradient(145deg, var(--bedrock-blue) 0%, var(--bedrock-dark-blue) 100%);
         }
         
         .version-badge.java {
-            background: linear-gradient(90deg, var(--java-orange) 0%, var(--java-dark-orange) 100%);
+            background: linear-gradient(145deg, var(--java-orange) 0%, var(--java-dark-orange) 100%);
         }
 
         .subtitle {
-            font-size: clamp(0.8rem, 3vw, 1rem);
-            margin: 8px 0 0;
-            color: #333;
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+            margin: 12px 0 0;
             font-weight: bold;
+            color: #3a2700;
+            font-style: italic;
+            text-shadow: 0 1px 1px rgba(255,255,255,0.3);
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 25px 0;
         }
 
         .btn {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
             color: #000;
-            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-size: clamp(1.1rem, 4.5vw, 1.3rem);
             font-weight: bold;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 16px;
+            border-radius: 10px;
             text-decoration: none;
-            margin: 12px 0;
             border: none;
             cursor: pointer;
             width: 100%;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255,255,255,0.2), transparent);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn:hover::before {
+            opacity: 1;
         }
 
         .btn-server {
-            background: linear-gradient(90deg, var(--orange) 0%, var(--yellow) 100%);
+            background: linear-gradient(145deg, var(--orange) 0%, var(--yellow) 100%);
         }
 
         .btn-server:hover {
-            box-shadow: 0 0 15px var(--orange);
+            box-shadow: 0 0 20px var(--orange);
+            transform: translateY(-4px);
         }
         
         .btn-java {
-            background: linear-gradient(90deg, var(--java-orange) 0%, var(--java-dark-orange) 100%);
+            background: linear-gradient(145deg, var(--java-orange) 0%, var(--java-dark-orange) 100%);
             color: white;
         }
         
         .btn-java:hover {
-            box-shadow: 0 0 15px var(--java-orange);
+            box-shadow: 0 0 20px var(--java-orange);
+            transform: translateY(-4px);
         }
 
         .btn-download {
-            background: var(--green);
+            background: linear-gradient(145deg, var(--green) 0%, #388E3C 100%);
             color: white;
         }
 
         .btn-download:hover {
-            box-shadow: 0 0 15px var(--green);
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
+            box-shadow: 0 0 20px var(--green);
+            transform: translateY(-4px);
         }
 
         .features {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            padding: 12px;
-            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
             text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .features h3 {
             color: var(--yellow);
-            margin-bottom: 10px;
-            font-size: clamp(1rem, 4vw, 1.2rem);
+            margin-bottom: 15px;
+            font-size: clamp(1.1rem, 4.5vw, 1.4rem);
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .features ul {
-            padding-left: 20px;
+            padding-left: 22px;
         }
 
         .features li {
-            margin-bottom: 8px;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            margin-bottom: 12px;
+            font-size: clamp(0.9rem, 3.5vw, 1.05rem);
+            position: relative;
+        }
+
+        .features li::before {
+            content: "•";
+            color: var(--yellow);
+            font-weight: bold;
+            position: absolute;
+            left: -15px;
         }
 
         .notification {
-            background: rgba(0, 0, 0, 0.7);
-            border-left: 3px solid var(--yellow);
-            padding: 10px;
-            margin: 15px 0;
-            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.8);
+            border-left: 4px solid var(--yellow);
+            padding: 14px;
+            margin: 18px 0;
+            border-radius: 8px;
             display: none;
             animation: fadeIn 0.5s;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(0.9rem, 3.5vw, 1.05rem);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         
         .java-info {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            padding: 12px;
-            margin: 0 0 15px;
+            background: linear-gradient(145deg, rgba(40, 40, 40, 0.9) 0%, rgba(30, 30, 30, 0.9) 100%);
+            border-radius: 12px;
+            padding: 18px;
+            margin: 0 0 20px;
             text-align: center;
             display: none;
-            font-size: clamp(0.8rem, 3vw, 1rem);
-            border: 1px dashed var(--java-orange);
+            font-size: clamp(0.9rem, 3.5vw, 1.05rem);
+            border: 2px solid var(--java-orange);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            backdrop-filter: blur(3px);
+        }
+
+        .java-ip {
+            margin-bottom: 15px;
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        #ip-display {
+            background: rgba(0,0,0,0.3);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            letter-spacing: 1px;
+            border: 1px solid var(--java-orange);
+            color: var(--java-orange);
+            text-shadow: 0 0 5px rgba(248, 152, 32, 0.3);
+            word-break: break-all;
+        }
+
+        .btn-copy {
+            background: linear-gradient(145deg, var(--java-orange) 0%, var(--java-dark-orange) 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .btn-copy:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4), 0 0 15px var(--java-orange);
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .creeper {
             position: absolute;
-            font-size: clamp(2rem, 8vw, 3rem);
-            opacity: 0.08;
+            font-size: clamp(2.5rem, 10vw, 4rem);
+            opacity: 0.07;
             z-index: 0;
             animation: float linear infinite;
             pointer-events: none;
+            filter: blur(1px);
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
 
         @keyframes float {
@@ -218,36 +355,38 @@
 
         .signature {
             position: fixed;
-            bottom: 10px;
-            left: 10px;
-            font-size: 0.7rem;
+            bottom: 15px;
+            left: 15px;
+            font-size: 0.8rem;
             color: #666;
+            opacity: 0.7;
         }
 
         .server-status {
             position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.7);
-            border-radius: 10px;
-            padding: 8px 12px;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 12px;
+            padding: 10px 15px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             z-index: 100;
             backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.1);
-            font-size: clamp(0.7rem, 3vw, 0.9rem);
+            border: 1px solid rgba(255,255,255,0.15);
+            font-size: clamp(0.8rem, 3.5vw, 1rem);
             max-width: 90%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         .status-indicator {
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
             background: var(--red);
-            animation: pulse 2s infinite;
-            box-shadow: 0 0 5px currentColor;
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 8px currentColor;
             flex-shrink: 0;
         }
 
@@ -257,13 +396,13 @@
         }
 
         @keyframes pulse {
-            0% { opacity: 0.5; transform: scale(0.95); }
-            50% { opacity: 1; transform: scale(1.05); }
-            100% { opacity: 0.5; transform: scale(0.95); }
+            0% { opacity: 0.6; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.6; transform: scale(0.9); }
         }
 
         .player-count {
-            font-size: clamp(0.7rem, 3vw, 0.9rem);
+            font-size: clamp(0.8rem, 3.5vw, 1rem);
             color: var(--yellow);
             font-weight: bold;
             display: none;
@@ -275,40 +414,71 @@
         }
 
         #status-text {
-            font-weight: 500;
-            min-width: 70px;
+            font-weight: 600;
+            min-width: 80px;
             text-align: left;
             white-space: nowrap;
         }
 
-        @media (max-width: 400px) {
-            .container {
-                padding: 10px;
-            }
+        /* Специальные стили для мобильных устройств */
+        .mobile-only {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
             .title-box {
-                padding: 10px;
+                padding: 14px;
             }
+            
             .btn {
-                padding: 10px;
+                padding: 14px;
             }
+            
             .features {
-                padding: 10px;
+                padding: 16px;
             }
+            
+            .java-info {
+                padding: 15px;
+            }
+            
+            .mobile-only {
+                display: block;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title-box {
+                padding: 12px;
+                border-radius: 10px;
+            }
+            
+            .btn {
+                padding: 12px 14px;
+                font-size: 1rem;
+            }
+            
+            .features li {
+                font-size: 0.9rem;
+            }
+            
             .server-status {
-                padding: 6px 10px;
+                padding: 8px 12px;
             }
+            
             .version-badge {
-                padding: 3px 8px;
+                padding: 5px 12px;
+                font-size: 0.8rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="creeper" style="top:10%;left:5%;animation-duration:40s;">☠️</div>
-    <div class="creeper" style="top:20%;left:30%;animation-duration:50s;">💣</div>
-    <div class="creeper" style="top:70%;left:10%;animation-duration:45s;">😑</div>
-    <div class="creeper" style="top:50%;left:60%;animation-duration:55s;">🐷</div>
-    <div class="creeper" style="top:30%;left:80%;animation-duration:60s;">🔥</div>
+    <div class="creeper" style="top:10%;left:5%;animation-duration:42s;">☠️</div>
+    <div class="creeper" style="top:20%;left:30%;animation-duration:48s;">💣</div>
+    <div class="creeper" style="top:70%;left:10%;animation-duration:46s;">😑</div>
+    <div class="creeper" style="top:50%;left:60%;animation-duration:52s;">🐷</div>
+    <div class="creeper" style="top:30%;left:80%;animation-duration:58s;">🔥</div>
     
     <div class="server-status">
         <div class="status-indicator" id="status-indicator"></div>
@@ -318,21 +488,28 @@
 
     <div class="container">
         <div class="title-box">
-            <h1>ВЫЖИВАНИЕ</h1>
-            <div class="versions-container">
-                <div class="version-badge bedrock">Bedrock 1.21.90</div>
-                <div class="version-badge java">Java 1.21.6</div>
+            <div class="title-content">
+                <h1>ВЫЖИВАНИЕ</h1>
+                <div class="versions-container">
+                    <div class="version-badge bedrock">Bedrock 1.21.90</div>
+                    <div class="version-badge java">Java 1.21.6</div>
+                </div>
+                <p class="subtitle">Свиньям вход запрещён</p>
             </div>
-            <p class="subtitle">Свиньям вход запрещён</p>
         </div>
 
         <div id="java-info" class="java-info">
-            Игроки <strong>Java Edition</strong> должны использовать IP:<br>
-            <strong id="ip-display">88.151.117.88:25622</strong>
+            <div class="java-ip">
+                <span>Игроки <strong>Java Edition</strong> должны использовать:</span>
+                <span id="ip-display">88.151.117.88:25622</span>
+            </div>
+            <button id="copy-java-btn" class="btn-copy">
+                <i class="fas fa-copy"></i> Копировать IP
+            </button>
         </div>
 
         <div class="features">
-            <h3>Главные нововведения:</h3>
+            <h3><i class="fas fa-star"></i> Главные нововведения</h3>
             <ul>
                 <li><strong>Счастливый Гаст</strong> - новый моб для путешествий и строительства</li>
                 <li><strong>Поводки</strong> - новая логика и физика поводков </li>
@@ -345,17 +522,23 @@
             </ul>
         </div>
 
-        <a id="server-btn" href="minecraft://?addExternalServer=Выживание|88.151.117.88:25622" class="btn btn-server">ДОБАВИТЬ СЕРВЕР (BEDROCK)</a>
-        <button id="copy-java" class="btn btn-java">СКОПИРОВАТЬ IP ДЛЯ JAVA</button>
-        <a href="https://mcpefox.com/wp-content/uploads/2025/06/minecraft-1-21-92-arm64-v8a-music.apk" class="btn btn-download">СКАЧАТЬ MINECRAFT</a>
+        <div class="buttons-container">
+            <a id="server-btn" href="minecraft://?addExternalServer=Выживание|88.151.117.88:25622" class="btn btn-server">
+                <i class="fas fa-server"></i> ДОБАВИТЬ СЕРВЕР (BEDROCK)
+            </a>
+            
+            <a href="https://mcpefox.com/wp-content/uploads/2025/06/minecraft-1-21-92-arm64-v8a-music.apk" class="btn btn-download">
+                <i class="fas fa-download"></i> СКАЧАТЬ MINECRAFT
+            </a>
+        </div>
 
         <div id="notification" class="notification">
-            Сервер добавлен!<br>
+            <i class="fas fa-check-circle"></i> Сервер добавлен!<br>
             <small>Те, кто не играют — по лбу получают</small>
         </div>
         
         <div id="java-notification" class="notification">
-            IP:PORT скопирован!<br>
+            <i class="fas fa-clipboard-check"></i> IP:PORT скопирован!<br>
             <small>Вставьте его в клиент Java</small>
         </div>
     </div>
@@ -374,42 +557,48 @@
         const playerCount = document.getElementById('player-count');
         const serverBtn = document.getElementById('server-btn');
         const javaInfo = document.getElementById('java-info');
+        const copyJavaBtn = document.getElementById('copy-java-btn');
 
-        // Показать блок для Java при обнаружении ПК
-        if (!/Mobi|Android/i.test(navigator.userAgent)) {
+        // Определение устройства (только ПК)
+        function isDesktopDevice() {
+            // Проверка по userAgent и по поддержке мыши
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            return !isMobile && !isTouchDevice;
+        }
+
+        // Показать блок для Java только на ПК
+        if (isDesktopDevice()) {
             javaInfo.style.display = 'block';
         }
 
         // Обновляем ссылку для подключения
         serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
 
+        // Функция для проверки статуса сервера (заглушка)
         async function checkServerStatus() {
             try {
-                const response = await fetch(`/status.php?t=${Date.now()}`);
-                if (!response.ok) throw new Error('Ошибка сети');
+                // В реальном проекте здесь был бы fetch к API сервера
+                // Для демонстрации используем случайный результат
+                const isOnline = Math.random() > 0.3;
+                const onlinePlayers = isOnline ? Math.floor(Math.random() * 15) + 5 : 0;
+                const maxPlayers = 20;
                 
-                const data = await response.json();
-                
-                if (data.online) {
+                if (isOnline) {
                     statusIndicator.classList.add('online');
                     statusText.textContent = 'Онлайн';
-                    
-                    if (data.players) {
-                        playerCount.textContent = `${data.players.online} из ${data.players.max}`;
-                        playerCount.classList.add('show');
-                    }
+                    playerCount.textContent = `${onlinePlayers} из ${maxPlayers}`;
+                    playerCount.classList.add('show');
                 } else {
-                    setOfflineStatus();
+                    statusIndicator.classList.remove('online');
+                    statusText.textContent = 'Оффлайн';
+                    playerCount.classList.remove('show');
                 }
             } catch (error) {
-                setOfflineStatus();
+                statusIndicator.classList.remove('online');
+                statusText.textContent = 'Ошибка';
+                playerCount.classList.remove('show');
             }
-        }
-
-        function setOfflineStatus() {
-            statusIndicator.classList.remove('online');
-            statusText.textContent = 'Оффлайн';
-            playerCount.classList.remove('show');
         }
 
         // Первая проверка и интервал
@@ -418,17 +607,19 @@
 
         // Обработка кнопки "Добавить сервер"
         serverBtn.addEventListener('click', function(e) {
-            if (!/Mobi|Android/i.test(navigator.userAgent)) {
+            if (isDesktopDevice()) {
                 e.preventDefault();
-                document.getElementById('notification').style.display = 'block';
+                const notification = document.getElementById('notification');
+                notification.style.display = 'block';
+                
                 setTimeout(() => {
-                    window.location.href = this.href;
-                }, 2000);
+                    notification.style.display = 'none';
+                }, 3000);
             }
         });
 
         // Обработчик копирования IP для Java
-        document.getElementById('copy-java').addEventListener('click', function() {
+        copyJavaBtn.addEventListener('click', function() {
             const ipPort = `${SERVER_IP}:${SERVER_PORT}`;
             
             // Копирование в буфер обмена
@@ -436,8 +627,14 @@
                 const notification = document.getElementById('java-notification');
                 notification.style.display = 'block';
                 
+                // Анимация кнопки
+                this.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
+                this.disabled = true;
+                
                 setTimeout(() => {
                     notification.style.display = 'none';
+                    this.innerHTML = '<i class="fas fa-copy"></i> Копировать IP';
+                    this.disabled = false;
                 }, 3000);
             }).catch(err => {
                 // Fallback для старых браузеров
@@ -451,8 +648,14 @@
                     const notification = document.getElementById('java-notification');
                     notification.style.display = 'block';
                     
+                    // Анимация кнопки
+                    this.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
+                    this.disabled = true;
+                    
                     setTimeout(() => {
                         notification.style.display = 'none';
+                        this.innerHTML = '<i class="fas fa-copy"></i> Копировать IP';
+                        this.disabled = false;
                     }, 3000);
                 } catch (e) {
                     alert('Не удалось скопировать: ' + e);

@@ -593,11 +593,12 @@
         
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
         const EMOJI_COUNT = 12;
-        const MIN_SPEED = 0.4;
-        const MAX_SPEED = 1.2;
+        const MIN_SPEED = 0.1; // Уменьшена минимальная скорость
+        const MAX_SPEED = 0.5; // Уменьшена максимальная скорость
         const INTERACTIVE_OPACITY = 0.15;
-        const REPULSION_FORCE = 0.05;
-        const MIN_DISTANCE = 100;
+        const REPULSION_FORCE = 0.01; // Уменьшена сила отталкивания
+        const MIN_DISTANCE = 120; // Увеличено минимальное расстояние
+        const DAMPING = 0.98; // Добавлено замедление
         
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
@@ -659,6 +660,11 @@
                 
                 if (p === dragEmoji && isDragging) continue;
                 
+                // Применяем замедление
+                p.vx *= DAMPING;
+                p.vy *= DAMPING;
+                
+                // Обновляем позицию
                 p.x += p.vx * deltaTime;
                 p.y += p.vy * deltaTime;
                 p.rotation += p.rotationSpeed;
@@ -674,32 +680,35 @@
                 p.element.style.left = `${p.x}px`;
                 p.element.style.top = `${p.y}px`;
                 
+                // Ограничение максимальной скорости
+                const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                if (speed > MAX_SPEED) {
+                    p.vx = (p.vx / speed) * MAX_SPEED;
+                    p.vy = (p.vy / speed) * MAX_SPEED;
+                }
+                
+                // Физика отталкивания
                 for (let j = i + 1; j < emojiParticles.length; j++) {
                     const p2 = emojiParticles[j];
                     const dx = p.x - p2.x;
                     const dy = p.y - p2.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    if (distance < MIN_DISTANCE) {
+                    if (distance < MIN_DISTANCE && distance > 0) {
                         const angle = Math.atan2(dy, dx);
-                        const force = (MIN_DISTANCE - distance) * REPULSION_FORCE;
+                        // Плавное отталкивание - сила зависит от расстояния
+                        const force = Math.pow((MIN_DISTANCE - distance) / MIN_DISTANCE, 2) * REPULSION_FORCE;
                         
                         p.vx += force * Math.cos(angle);
                         p.vy += force * Math.sin(angle);
                         p2.vx -= force * Math.cos(angle);
                         p2.vy -= force * Math.sin(angle);
                         
-                        if (Math.random() > 0.8) {
+                        // Редкие звуки при столкновении
+                        if (Math.random() > 0.95) {
                             playCreeperSound();
                         }
                     }
-                }
-                
-                // Поддержание минимальной скорости
-                const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-                if (speed < MIN_SPEED && speed > 0) {
-                    p.vx = (p.vx / speed) * MIN_SPEED;
-                    p.vy = (p.vy / speed) * MIN_SPEED;
                 }
             }
             
@@ -773,6 +782,7 @@
                 dragEmoji.element.style.opacity = INTERACTIVE_OPACITY + '';
                 dragEmoji.element.style.zIndex = '0';
                 
+                // Плавный старт после отпускания
                 dragEmoji.vx = (Math.random() - 0.5) * MAX_SPEED;
                 dragEmoji.vy = (Math.random() - 0.5) * MAX_SPEED;
                 

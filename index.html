@@ -6,6 +6,23 @@
     <title>Minecraft Bedrock 1.21.90 / Java 1.21.6 | Выживание</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Добавлено правило запрета выделения текста */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* Разрешаем выделение только для Java адреса */
+        .java-address {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        /* Остальные стили без изменений */
         :root {
             --yellow: #ffeb3b;
             --orange: #ff9800;
@@ -183,24 +200,39 @@
             font-size: clamp(0.8rem, 3vw, 1rem);
         }
 
+        /* Унифицированные уведомления с плавной анимацией */
         .notification {
-            background: rgba(0, 0, 0, 0.7);
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
             border-left: 3px solid var(--yellow);
-            padding: 10px;
-            margin: 15px 0;
-            border-radius: 5px;
-            display: none;
-            animation: fadeIn 0.5s;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            max-width: 90%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
 
-        .java-notification {
-            border-left: 3px solid var(--java-green);
+        .notification.show {
+            opacity: 1;
+            visibility: visible;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .notification i {
+            font-size: 1.2rem;
+        }
+
+        .notification.java {
+            border-left-color: var(--java-green);
         }
 
         .creeper {
@@ -465,33 +497,28 @@
         <a href="https://mcpefox.com/wp-content/uploads/2025/06/minecraft-1-21-92-arm64-v8a-music.apk" class="btn btn-download">
             <i class="fas fa-download"></i> СКАЧАТЬ MINECRAFT
         </a>
-
-        <div id="notification" class="notification">
-            <i class="fas fa-check-circle"></i> Сервер добавлен!<br>
-            <small>Те, кто не играют — по лбу получают</small>
-        </div>
         
         <!-- Java секция (только для ПК) -->
-        <!-- Java секция (только для ПК) -->
-<div class="java-section desktop-only">
-    <div class="java-content">
-        <div class="java-info">
-            <div class="java-address-container">
-                <i class="fab fa-java" style="margin-right: 8px; color: #b0ffa9;"></i>
-                <div class="java-address" id="java-ip">88.151.117.88:25622</div>
+        <div class="java-section desktop-only">
+            <div class="java-content">
+                <div class="java-info">
+                    <div class="java-address-container">
+                        <i class="fab fa-java" style="margin-right: 8px; color: #b0ffa9;"></i>
+                        <div class="java-address" id="java-ip">88.151.117.88:25622</div>
+                    </div>
+                    <button class="copy-btn" id="java-copy-btn">
+                        <i class="far fa-copy"></i> Копировать
+                    </button>
+                </div>
+                <p class="java-hint">Используйте этот адрес для подключения в Minecraft Java Edition</p>
             </div>
-            <button class="copy-btn" id="java-copy-btn">
-                <i class="far fa-copy"></i> Копировать
-            </button>
         </div>
-        <p class="java-hint">Используйте этот адрес для подключения в Minecraft Java Edition</p>
     </div>
-</div>
 
-        <div id="java-notification" class="notification java-notification">
-            <i class="fas fa-check-circle"></i> IP скопирован<br>
-            <small>Пихай его в Minecraft Java</small>
-        </div>
+    <!-- Универсальное уведомление -->
+    <div id="universal-notification" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <div id="notification-text"></div>
     </div>
 
     <div class="signature">Made by VSakoe</div>
@@ -509,11 +536,23 @@
         const serverBtn = document.getElementById('server-btn');
         const javaIp = document.getElementById('java-ip');
         const javaCopyBtn = document.getElementById('java-copy-btn');
-        const javaNotification = document.getElementById('java-notification');
+        const universalNotification = document.getElementById('universal-notification');
+        const notificationText = document.getElementById('notification-text');
 
         // Обновляем ссылку для подключения
         serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
         javaIp.textContent = `${SERVER_IP}:${SERVER_PORT}`;
+
+        // Функция показа уведомлений
+        function showNotification(message, isJava = false) {
+            notificationText.innerHTML = message;
+            universalNotification.className = 'notification' + (isJava ? ' java' : '');
+            universalNotification.classList.add('show');
+            
+            setTimeout(() => {
+                universalNotification.classList.remove('show');
+            }, 3000);
+        }
 
         async function checkServerStatus() {
             try {
@@ -552,7 +591,7 @@
         document.getElementById('server-btn').addEventListener('click', function(e) {
             if (!/Mobi|Android/i.test(navigator.userAgent)) {
                 e.preventDefault();
-                document.getElementById('notification').style.display = 'block';
+                showNotification('Сервер добавлен!<br><small>Те, кто не играют — по лбу получают</small>');
                 setTimeout(() => {
                     window.location.href = this.href;
                 }, 2000);
@@ -565,15 +604,13 @@
             
             // Копирование в буфер обмена
             navigator.clipboard.writeText(textToCopy).then(() => {
-                // Показать уведомление
-                javaNotification.style.display = 'block';
-                setTimeout(() => {
-                    javaNotification.style.display = 'none';
-                }, 3000);
+                showNotification('IP скопирован<br><small>Пихай его в Minecraft Java</small>', true);
             }).catch(err => {
-                console.error('Ошибка копирования: ', err);
-                javaNotification.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Ошибка копирования!<br><small>Скопируйте вручную: ' + textToCopy + '</small>';
-                javaNotification.style.display = 'block';
+                notificationText.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Ошибка копирования!<br><small>Скопируйте вручную: ' + textToCopy + '</small>';
+                universalNotification.classList.add('show');
+                setTimeout(() => {
+                    universalNotification.classList.remove('show');
+                }, 5000);
             });
         });
 

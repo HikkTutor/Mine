@@ -144,15 +144,6 @@
             box-shadow: 0 0 15px var(--orange);
         }
 
-        .btn-java {
-            background: linear-gradient(90deg, var(--java-green) 0%, var(--java-dark) 100%);
-            color: white;
-        }
-
-        .btn-java:hover {
-            box-shadow: 0 0 15px var(--java-green);
-        }
-
         .btn-download {
             background: var(--green);
             color: white;
@@ -296,10 +287,23 @@
 
         .java-section {
             margin-top: 15px;
-            background: rgba(30, 60, 26, 0.3);
+            background: linear-gradient(135deg, rgba(30, 60, 26, 0.6), rgba(83, 130, 74, 0.4));
             border-radius: 8px;
-            padding: 12px;
+            padding: 16px;
             display: none;
+            border: 1px solid rgba(176, 255, 169, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .java-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--java-green), var(--java-dark));
         }
 
         .java-section.desktop-only {
@@ -308,47 +312,69 @@
 
         .java-section h3 {
             color: #b0ffa9;
-            margin-bottom: 10px;
-            font-size: clamp(1rem, 4vw, 1.2rem);
+            margin-bottom: 15px;
+            font-size: clamp(1.1rem, 4vw, 1.3rem);
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 10px;
+            text-shadow: 0 0 5px rgba(176, 255, 169, 0.3);
+        }
+
+        .java-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .java-info {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 6px;
-            padding: 10px;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 1.1rem;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 8px;
+            padding: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
         }
 
-        .java-info span {
+        .java-address {
+            font-family: 'Courier New', monospace;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
             color: #b0ffa9;
             font-weight: bold;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-align: left;
+            flex-grow: 1;
+            padding: 5px 0;
         }
 
         .copy-btn {
             background: var(--java-green);
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
+            padding: 10px 15px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+            font-weight: bold;
+            white-space: nowrap;
         }
 
         .copy-btn:hover {
             background: #3e6d37;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        .java-hint {
+            font-size: 0.85rem;
+            color: #8cbb87;
+            margin-top: 5px;
+            font-style: italic;
         }
 
         @media (max-width: 400px) {
@@ -366,6 +392,13 @@
             }
             .server-status {
                 padding: 6px 10px;
+            }
+            .java-info {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .copy-btn {
+                justify-content: center;
             }
         }
     </style>
@@ -388,10 +421,10 @@
             <h1>ВЫЖИВАНИЕ</h1>
             <div class="badges-container">
                 <div class="version-badge">
-                    <i class="fas fa-mobile-alt"></i> Bedrock 1.21.90
+                    <i class="fas fa-mobile-alt"></i> 1.21.90
                 </div>
                 <div class="version-badge java-badge">
-                    <i class="fab fa-java"></i> Java 1.21.6
+                    <i class="fab fa-java"></i> 1.21.6
                 </div>
             </div>
             <p class="subtitle">Свиньям вход запрещён</p>
@@ -412,11 +445,11 @@
         </div>
 
         <a id="server-btn" href="minecraft://?addExternalServer=Выживание|88.151.117.88:25622" class="btn btn-server">
-            <i class="fas fa-plus-circle"></i> ДОБАВИТЬ СЕРВЕР (BEDROCK)
+            <i class="fas fa-plus-circle"></i> ДОБАВИТЬ СЕРВЕР
         </a>
         
         <a href="https://mcpefox.com/wp-content/uploads/2025/06/minecraft-1-21-92-arm64-v8a-music.apk" class="btn btn-download">
-            <i class="fas fa-download"></i> СКАЧАТЬ MINECRAFT (BEDROCK)
+            <i class="fas fa-download"></i> СКАЧАТЬ MINECRAFT
         </a>
 
         <div id="notification" class="notification">
@@ -426,14 +459,17 @@
         
         <!-- Java секция (только для ПК) -->
         <div class="java-section desktop-only">
-            <h3><i class="fab fa-java"></i> Для игроков Java Edition</h3>
-            <div class="java-info">
-                <span id="java-ip">88.151.117.88:25622</span>
-                <button class="copy-btn" id="java-copy-btn">
-                    <i class="far fa-copy"></i> Копировать
-                </button>
+            <h3><i class="fab fa-java"></i> Подключение для Java Edition</h3>
+            
+            <div class="java-content">
+                <div class="java-info">
+                    <div class="java-address" id="java-ip">88.151.117.88:25622</div>
+                    <button class="copy-btn" id="java-copy-btn">
+                        <i class="far fa-copy"></i> Копировать
+                    </button>
+                </div>
+                <p class="java-hint">Используйте этот адрес для подключения в Minecraft Java Edition</p>
             </div>
-            <p><small>Используйте этот адрес для подключения в Minecraft Java Edition</small></p>
         </div>
 
         <div id="java-notification" class="notification java-notification">

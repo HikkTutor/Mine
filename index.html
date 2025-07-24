@@ -6,12 +6,13 @@
     <title>Minecraft Bedrock 1.21.90 / Java 1.21.6 | Выживание</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Добавлено правило запрета выделения текста */
+        /* Запрет выделения текста */
         * {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            touch-action: manipulation;
         }
         
         /* Разрешаем выделение только для Java адреса */
@@ -22,7 +23,6 @@
             user-select: text;
         }
 
-        /* Остальные стили без изменений */
         :root {
             --yellow: #ffeb3b;
             --orange: #ff9800;
@@ -32,6 +32,7 @@
             --red: #f44336;
             --java-green: #53824a;
             --java-dark: #1e3c1a;
+            --click-effect: #ff980080;
         }
 
         * {
@@ -53,7 +54,8 @@
             align-items: center;
             padding: 15px;
             position: relative;
-            overflow-x: hidden;
+            overflow: hidden;
+            cursor: default;
         }
 
         .container {
@@ -72,6 +74,8 @@
             margin-bottom: 20px;
             box-shadow: 0 0 20px rgba(255, 235, 59, 0.5);
             animation: glow 2s infinite alternate;
+            position: relative;
+            overflow: hidden;
         }
 
         @keyframes glow {
@@ -145,12 +149,24 @@
             border: none;
             cursor: pointer;
             width: 100%;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
         }
 
         .btn i {
             font-size: 1.2em;
+            transition: transform 0.2s;
+        }
+
+        .btn:active {
+            transform: translateY(3px) scale(0.98);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active i {
+            transform: scale(1.1);
         }
 
         .btn-server {
@@ -172,6 +188,36 @@
 
         .btn:hover {
             transform: translateY(-3px);
+        }
+
+        /* Эффект нажатия */
+        .btn:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: var(--click-effect);
+            opacity: 0.8;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .btn:active:after {
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(100, 100);
+                opacity: 0;
+            }
         }
 
         .features {
@@ -217,14 +263,16 @@
             z-index: 1000;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
+            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
             max-width: 90%;
             box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
         }
 
         .notification.show {
             opacity: 1;
             visibility: visible;
+            transform: translateX(-50%) translateY(-10px);
         }
 
         .notification i {
@@ -235,21 +283,32 @@
             border-left-color: var(--java-green);
         }
 
-        .creeper {
+        /* Стили для интерактивных эмодзи */
+        .emoji-particle {
             position: absolute;
             font-size: clamp(2rem, 8vw, 3rem);
             opacity: 0.08;
             z-index: 0;
-            animation: float linear infinite;
             pointer-events: none;
+            user-select: none;
+            transform: translate(-50%, -50%);
+            transition: transform 0.2s, opacity 0.3s;
+            text-shadow: 0 0 5px rgba(0,0,0,0.3);
         }
 
-        @keyframes float {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(15vw, 10vh) rotate(10deg); }
-            50% { transform: translate(30vw, 5vh) rotate(-5deg); }
-            75% { transform: translate(45vw, 15vh) rotate(5deg); }
-            100% { transform: translate(60vw, 0) rotate(0deg); }
+        .emoji-particle.interactive {
+            pointer-events: auto;
+            cursor: pointer;
+            opacity: 0.15;
+        }
+
+        .emoji-particle:hover {
+            opacity: 0.25;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .emoji-particle:active {
+            transform: translate(-50%, -50%) scale(0.8);
         }
 
         .signature {
@@ -258,6 +317,7 @@
             left: 10px;
             font-size: 0.7rem;
             color: #666;
+            z-index: 10;
         }
 
         .server-status {
@@ -402,12 +462,18 @@
             font-weight: bold;
             white-space: nowrap;
             flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
         }
 
         .copy-btn:hover {
             background: #3e6d37;
             transform: translateY(-2px);
             box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        .copy-btn:active {
+            transform: translateY(1px);
         }
 
         .java-hint {
@@ -450,11 +516,8 @@
     </style>
 </head>
 <body>
-    <div class="creeper" style="top:10%;left:5%;animation-duration:40s;">☠️</div>
-    <div class="creeper" style="top:20%;left:30%;animation-duration:50s;">💣</div>
-    <div class="creeper" style="top:70%;left:10%;animation-duration:45s;">😑</div>
-    <div class="creeper" style="top:50%;left:60%;animation-duration:55s;">🐷</div>
-    <div class="creeper" style="top:30%;left:80%;animation-duration:60s;">🔥</div>
+    <!-- Эмодзи теперь создаются динамически через JS -->
+    <div id="emoji-container"></div>
     
     <div class="server-status">
         <div class="status-indicator" id="status-indicator"></div>
@@ -523,11 +586,28 @@
 
     <div class="signature">Made by VSakoe</div>
 
+    <!-- Аудио для звуковых эффектов -->
+    <audio id="click-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="creeper-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-game-ball-tap-2073.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
         // ========== НАСТРОЙКИ СЕРВЕРА ========== //
-        const SERVER_IP = "88.151.117.88";  // IP сервера
-        const SERVER_PORT = "25622";        // Порт сервера
-        const CHECK_INTERVAL = 15000;       // Интервал проверки (мс)
+        const SERVER_IP = "88.151.117.88";
+        const SERVER_PORT = "25622";
+        const CHECK_INTERVAL = 15000;
+        // ======================================= //
+        
+        // ========== НАСТРОЙКИ ЭМОДЗИ ========== //
+        const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
+        const EMOJI_COUNT = 12;
+        const MIN_SPEED = 0.2;
+        const MAX_SPEED = 1.5;
+        const INTERACTIVE_OPACITY = 0.15;
         // ======================================= //
 
         const statusIndicator = document.getElementById('status-indicator');
@@ -538,10 +618,236 @@
         const javaCopyBtn = document.getElementById('java-copy-btn');
         const universalNotification = document.getElementById('universal-notification');
         const notificationText = document.getElementById('notification-text');
+        const emojiContainer = document.getElementById('emoji-container');
+        const clickSound = document.getElementById('click-sound');
+        const creeperSound = document.getElementById('creeper-sound');
+        
+        // Массив для хранения данных об эмодзи
+        let emojiParticles = [];
+        let lastTime = 0;
+        let isDragging = false;
+        let dragEmoji = null;
 
-        // Обновляем ссылку для подключения
-        serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
-        javaIp.textContent = `${SERVER_IP}:${SERVER_PORT}`;
+        // Инициализация
+        function init() {
+            // Обновляем ссылку для подключения
+            serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
+            javaIp.textContent = `${SERVER_IP}:${SERVER_PORT}`;
+            
+            // Создаем интерактивные эмодзи
+            createEmojiParticles();
+            
+            // Запускаем анимацию
+            requestAnimationFrame(animateEmojis);
+            
+            // Запускаем проверку статуса сервера
+            checkServerStatus();
+            setInterval(checkServerStatus, CHECK_INTERVAL);
+            
+            // Добавляем обработчики событий
+            setupEventListeners();
+        }
+
+        // Создание частиц-эмодзи
+        function createEmojiParticles() {
+            for (let i = 0; i < EMOJI_COUNT; i++) {
+                const emoji = document.createElement('div');
+                emoji.className = 'emoji-particle interactive';
+                emoji.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+                emojiContainer.appendChild(emoji);
+                
+                // Начальная позиция и скорость
+                const size = 30 + Math.random() * 30;
+                emoji.style.fontSize = `${size}px`;
+                
+                emojiParticles.push({
+                    element: emoji,
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    vx: (Math.random() - 0.5) * MAX_SPEED * 2,
+                    vy: (Math.random() - 0.5) * MAX_SPEED * 2,
+                    size: size,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 4
+                });
+            }
+        }
+
+        // Анимация эмодзи с физикой
+        function animateEmojis(timestamp) {
+            const deltaTime = timestamp - lastTime || 16;
+            lastTime = timestamp;
+            
+            for (let i = 0; i < emojiParticles.length; i++) {
+                const p = emojiParticles[i];
+                
+                if (p === dragEmoji && isDragging) continue;
+                
+                // Обновление позиции
+                p.x += p.vx * deltaTime;
+                p.y += p.vy * deltaTime;
+                
+                // Обновление вращения
+                p.rotation += p.rotationSpeed;
+                p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
+                
+                // Проверка границ
+                if (p.x < p.size/2) {
+                    p.x = p.size/2;
+                    p.vx = Math.abs(p.vx) * 0.8;
+                } else if (p.x > window.innerWidth - p.size/2) {
+                    p.x = window.innerWidth - p.size/2;
+                    p.vx = -Math.abs(p.vx) * 0.8;
+                }
+                
+                if (p.y < p.size/2) {
+                    p.y = p.size/2;
+                    p.vy = Math.abs(p.vy) * 0.8;
+                } else if (p.y > window.innerHeight - p.size/2) {
+                    p.y = window.innerHeight - p.size/2;
+                    p.vy = -Math.abs(p.vy) * 0.8;
+                }
+                
+                // Применение позиции
+                p.element.style.left = `${p.x}px`;
+                p.element.style.top = `${p.y}px`;
+                
+                // Проверка столкновений
+                for (let j = i + 1; j < emojiParticles.length; j++) {
+                    const p2 = emojiParticles[j];
+                    const dx = p.x - p2.x;
+                    const dy = p.y - p2.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const minDistance = (p.size + p2.size) / 2;
+                    
+                    if (distance < minDistance) {
+                        // Эффект столкновения
+                        const angle = Math.atan2(dy, dx);
+                        const targetX = p.x + Math.cos(angle) * minDistance;
+                        const targetY = p.y + Math.sin(angle) * minDistance;
+                        
+                        const ax = (targetX - p2.x) * 0.05;
+                        const ay = (targetY - p2.y) * 0.05;
+                        
+                        p.vx -= ax;
+                        p.vy -= ay;
+                        p2.vx += ax;
+                        p2.vy += ay;
+                        
+                        // Звук столкновения (тихий)
+                        if (Math.random() > 0.7) {
+                            creeperSound.currentTime = 0;
+                            creeperSound.volume = 0.1;
+                            creeperSound.play().catch(e => console.log("Audio play error:", e));
+                        }
+                    }
+                }
+            }
+            
+            requestAnimationFrame(animateEmojis);
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Обработка клика по серверу
+            serverBtn.addEventListener('click', function(e) {
+                playClickSound();
+                if (!/Mobi|Android/i.test(navigator.userAgent)) {
+                    e.preventDefault();
+                    showNotification('Сервер добавлен!<br><small>Те, кто не играют — по лбу получают</small>');
+                    setTimeout(() => {
+                        window.location.href = this.href;
+                    }, 2000);
+                }
+            });
+
+            // Обработка кнопки "Копировать"
+            javaCopyBtn.addEventListener('click', function() {
+                playClickSound();
+                const textToCopy = `${SERVER_IP}:${SERVER_PORT}`;
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showNotification('IP скопирован<br><small>Пихай его в Minecraft Java</small>', true);
+                }).catch(err => {
+                    notificationText.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Ошибка копирования!<br><small>Скопируйте вручную: ' + textToCopy + '</small>';
+                    universalNotification.classList.add('show');
+                    setTimeout(() => {
+                        universalNotification.classList.remove('show');
+                    }, 5000);
+                });
+            });
+
+            // Обработка кликов по эмодзи
+            emojiContainer.addEventListener('mousedown', startDrag);
+            emojiContainer.addEventListener('touchstart', startDrag, { passive: false });
+            
+            window.addEventListener('mousemove', drag);
+            window.addEventListener('touchmove', drag, { passive: false });
+            
+            window.addEventListener('mouseup', endDrag);
+            window.addEventListener('touchend', endDrag);
+            window.addEventListener('touchcancel', endDrag);
+            
+            // Обработка ресайза окна
+            window.addEventListener('resize', adjustForSmallScreens);
+            adjustForSmallScreens();
+        }
+
+        // Начать перетаскивание эмодзи
+        function startDrag(e) {
+            if (e.target.classList.contains('emoji-particle')) {
+                isDragging = true;
+                dragEmoji = emojiParticles.find(p => p.element === e.target);
+                if (dragEmoji) {
+                    dragEmoji.element.style.opacity = '0.3';
+                    dragEmoji.element.style.zIndex = '100';
+                    playCreeperSound();
+                }
+            }
+        }
+
+        // Перетаскивание эмодзи
+        function drag(e) {
+            if (!isDragging || !dragEmoji) return;
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            dragEmoji.x = clientX;
+            dragEmoji.y = clientY;
+            dragEmoji.element.style.left = `${clientX}px`;
+            dragEmoji.element.style.top = `${clientY}px`;
+        }
+
+        // Завершение перетаскивания
+        function endDrag() {
+            if (isDragging && dragEmoji) {
+                dragEmoji.element.style.opacity = INTERACTIVE_OPACITY + '';
+                dragEmoji.element.style.zIndex = '0';
+                
+                // Придаем случайное ускорение
+                dragEmoji.vx = (Math.random() - 0.5) * MAX_SPEED * 3;
+                dragEmoji.vy = (Math.random() - 0.5) * MAX_SPEED * 3;
+                
+                playCreeperSound();
+            }
+            isDragging = false;
+            dragEmoji = null;
+        }
+
+        // Воспроизведение звука клика
+        function playClickSound() {
+            clickSound.currentTime = 0;
+            clickSound.volume = 0.3;
+            clickSound.play().catch(e => console.log("Audio play error:", e));
+        }
+
+        // Воспроизведение звука крипера
+        function playCreeperSound() {
+            creeperSound.currentTime = 0;
+            creeperSound.volume = 0.2;
+            creeperSound.play().catch(e => console.log("Audio play error:", e));
+        }
 
         // Функция показа уведомлений
         function showNotification(message, isJava = false) {
@@ -554,6 +860,7 @@
             }, 3000);
         }
 
+        // Проверка статуса сервера
         async function checkServerStatus() {
             try {
                 const response = await fetch(`/status.php?t=${Date.now()}`);
@@ -583,55 +890,16 @@
             playerCount.classList.remove('show');
         }
 
-        // Первая проверка и интервал
-        checkServerStatus();
-        setInterval(checkServerStatus, CHECK_INTERVAL);
-
-        // Обработка кнопки "Добавить сервер"
-        document.getElementById('server-btn').addEventListener('click', function(e) {
-            if (!/Mobi|Android/i.test(navigator.userAgent)) {
-                e.preventDefault();
-                showNotification('Сервер добавлен!<br><small>Те, кто не играют — по лбу получают</small>');
-                setTimeout(() => {
-                    window.location.href = this.href;
-                }, 2000);
-            }
-        });
-
-        // Обработка кнопки "Копировать"
-        javaCopyBtn.addEventListener('click', function() {
-            const textToCopy = `${SERVER_IP}:${SERVER_PORT}`;
-            
-            // Копирование в буфер обмена
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                showNotification('IP скопирован<br><small>Пихай его в Minecraft Java</small>', true);
-            }).catch(err => {
-                notificationText.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Ошибка копирования!<br><small>Скопируйте вручную: ' + textToCopy + '</small>';
-                universalNotification.classList.add('show');
-                setTimeout(() => {
-                    universalNotification.classList.remove('show');
-                }, 5000);
-            });
-        });
-
-        // Анимация криперов
-        document.querySelectorAll('.creeper').forEach(creeper => {
-            creeper.style.animationDuration = `${40 + Math.random() * 30}s`;
-        });
-
-        // Адаптация для очень маленьких экранов
+        // Адаптация для маленьких экранов
         function adjustForSmallScreens() {
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-            
             // Обновляем видимость Java-элементов
             document.querySelectorAll('.java-badge, .java-section').forEach(el => {
                 el.style.display = window.innerWidth >= 769 ? 'flex' : 'none';
             });
         }
 
-        window.addEventListener('resize', adjustForSmallScreens);
-        adjustForSmallScreens();
+        // Инициализация при загрузке
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>

@@ -664,18 +664,19 @@
         
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
         const EMOJI_COUNT = 12;
-        const MIN_SPEED = 0.4;
-        const MAX_SPEED = 1.5;
+        const MIN_SPEED = 0.2;
+        const MAX_SPEED = 1.0;
         const INTERACTIVE_OPACITY = 0.15;
-        const REPULSION_FORCE = 0.15;
-        const MIN_DISTANCE = 100;
-        const DAMPING = 0.94;
-        const WIND_FORCE = 0.0003; // Более мягкий ветер
-        const WIND_CHANGE_INTERVAL = 10000; // Более редкие изменения ветра
+        const REPULSION_FORCE = 0.12;
+        const MIN_DISTANCE = 120;
+        const DAMPING = 0.96;
+        const WIND_FORCE = 0.0001;
+        const WIND_CHANGE_INTERVAL = 20000;
         const DRAG_HISTORY_SIZE = 7;
-        const INERTIA_MULTIPLIER = 0.8;
+        const INERTIA_MULTIPLIER = 0.7;
         const SCREEN_MARGIN = 60;
-        const MAX_PUSH_FORCE = 0.5;
+        const MAX_PUSH_FORCE = 0.4;
+        const MAX_WIND_FORCE = 0.0002;
         
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
@@ -702,6 +703,11 @@
             lastChange: 0
         };
         let scaleFactor = 1;
+        let lastWindUpdate = 0;
+        let windTarget = {
+            x: (Math.random() - 0.5) * MAX_WIND_FORCE,
+            y: (Math.random() - 0.5) * MAX_WIND_FORCE
+        };
 
         function init() {
             serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
@@ -711,6 +717,10 @@
             if (window.innerWidth < 769) {
                 document.querySelectorAll('.java-badge, .java-section').forEach(el => {
                     el.style.display = 'none';
+                });
+            } else {
+                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
+                    el.style.display = 'flex';
                 });
             }
             
@@ -743,18 +753,25 @@
                     vy: (Math.random() - 0.5) * MAX_SPEED,
                     size: size,
                     rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 3
+                    rotationSpeed: (Math.random() - 0.5) * 2
                 });
             }
         }
 
         function updateWind(timestamp) {
-            if (timestamp - wind.lastChange > WIND_CHANGE_INTERVAL) {
-                // Более плавное изменение ветра
-                wind.x = wind.x * 0.5 + (Math.random() - 0.5) * WIND_FORCE * 0.5;
-                wind.y = wind.y * 0.5 + (Math.random() - 0.5) * WIND_FORCE * 0.5;
-                wind.lastChange = timestamp;
+            if (timestamp - lastWindUpdate > WIND_CHANGE_INTERVAL) {
+                windTarget = {
+                    x: (Math.random() - 0.5) * MAX_WIND_FORCE,
+                    y: (Math.random() - 0.5) * MAX_WIND_FORCE
+                };
+                lastWindUpdate = timestamp;
             }
+            
+            // Плавное изменение ветра
+            const windChangeSpeed = 0.00005;
+            wind.x += (windTarget.x - wind.x) * windChangeSpeed;
+            wind.y += (windTarget.y - wind.y) * windChangeSpeed;
+            
             requestAnimationFrame(updateWind);
         }
 

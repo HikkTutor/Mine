@@ -287,7 +287,7 @@
             pointer-events: none;
             user-select: none;
             transform: translate(-50%, -50%);
-            transition: transform 0.2s, opacity 0.3s;
+            transition: transform 0.4s, opacity 0.5s;
             text-shadow: 0 0 5px rgba(0,0,0,0.3);
             will-change: transform;
         }
@@ -391,6 +391,12 @@
             border: 1px solid rgba(176, 255, 169, 0.2);
             position: relative;
             overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.7s ease;
+        }
+
+        .java-section.visible {
+            opacity: 1;
         }
 
         .java-section::before {
@@ -489,35 +495,37 @@
             text-align: center;
         }
 
+        /* ПОЛНОСТЬЮ ПЕРЕРАБОТАННАЯ КНОПКА UI TOGGLE */
         .ui-toggle {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 38px;
-            height: 38px;
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
-            background: linear-gradient(90deg, var(--orange) 0%, var(--yellow) 100%);
+            background: linear-gradient(135deg, #ff9800, #ffeb3b);
             color: #000;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.1rem;
+            font-size: 1.4rem;
             z-index: 1000;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             transform: scale(1);
-            opacity: 0.9;
+            opacity: 0.95;
         }
 
         .ui-toggle:hover {
-            transform: scale(1.15);
+            transform: scale(1.15) rotate(15deg);
             opacity: 1;
+            box-shadow: 0 0 20px rgba(255, 235, 59, 0.8);
         }
 
-        .ui-toggle i {
-            margin-top: -1px;
-            margin-left: -1px;
+        .ui-toggle .eye-icon {
+            transition: transform 0.3s;
         }
 
         .mobile-only {
@@ -526,7 +534,7 @@
 
         @media (max-width: 768px) {
             .mobile-only {
-                display: block;
+                display: flex;
             }
         }
 
@@ -537,7 +545,7 @@
         }
 
         body.ui-hidden .ui-toggle {
-            background: linear-gradient(90deg, var(--green) 0%, var(--java-green) 100%);
+            background: linear-gradient(135deg, var(--green), var(--java-green));
         }
 
         body.ui-hidden .signature {
@@ -573,9 +581,9 @@
                 justify-content: center;
             }
             .ui-toggle {
-                width: 38px;
-                height: 38px;
-                font-size: 1rem;
+                width: 46px;
+                height: 46px;
+                font-size: 1.4rem;
                 bottom: 15px;
                 right: 15px;
             }
@@ -592,7 +600,7 @@
     </div>
 
     <div class="ui-toggle mobile-only" id="ui-toggle">
-        <i class="fas fa-eye-slash"></i>
+        <i class="fas fa-eye-slash eye-icon"></i>
     </div>
 
     <div class="container">
@@ -663,25 +671,26 @@
     </audio>
 
     <script>
+        // СИЛЬНО ИЗМЕНЕННЫЕ ПАРАМЕТРЫ ФИЗИКИ
         const SERVER_IP = "88.151.117.88";
         const SERVER_PORT = "25622";
         const CHECK_INTERVAL = 15000;
         
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
         const EMOJI_COUNT = 12;
-        const MIN_SPEED = 0.4;
-        const MAX_SPEED = 1.5;
+        const MIN_SPEED = 0.1; // Было 0.2
+        const MAX_SPEED = 0.5; // Было 1.0
         const INTERACTIVE_OPACITY = 0.15;
-        const REPULSION_FORCE = 0.15;
-        const MIN_DISTANCE = 100;
-        const DAMPING = 0.94;
-        const WIND_FORCE = 0.00015; // Значительно уменьшенная сила ветра
-        const WIND_CHANGE_INTERVAL = 20000; // Более редкие изменения ветра
+        const REPULSION_FORCE = 0.05; // Было 0.12
+        const MIN_DISTANCE = 180; // Было 120
+        const DAMPING = 0.96;
+        const WIND_FORCE = 0.0001;
+        const WIND_CHANGE_INTERVAL = 30000; // Было 20000
         const DRAG_HISTORY_SIZE = 7;
-        const INERTIA_MULTIPLIER = 0.8;
+        const INERTIA_MULTIPLIER = 0.5; // Было 0.7
         const SCREEN_MARGIN = 60;
-        const MAX_PUSH_FORCE = 0.5;
-        const WIND_SMOOTHING = 0.05; // Плавность изменения ветра
+        const MAX_PUSH_FORCE = 0.2; // Было 0.4
+        const MAX_WIND_FORCE = 0.0001; // Было 0.0002
         
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
@@ -696,6 +705,7 @@
         const creeperSound = document.getElementById('creeper-sound');
         const uiToggle = document.getElementById('ui-toggle');
         const container = document.querySelector('.container');
+        const javaSection = document.querySelector('.java-section');
         
         let emojiParticles = [];
         let lastTime = 0;
@@ -705,25 +715,25 @@
         let wind = {
             x: (Math.random() - 0.5) * WIND_FORCE,
             y: (Math.random() - 0.5) * WIND_FORCE,
-            targetX: (Math.random() - 0.5) * WIND_FORCE,
-            targetY: (Math.random() - 0.5) * WIND_FORCE,
             lastChange: 0
         };
         let scaleFactor = 1;
+        let lastWindUpdate = 0;
+        let windTarget = {
+            x: (Math.random() - 0.5) * MAX_WIND_FORCE,
+            y: (Math.random() - 0.5) * MAX_WIND_FORCE
+        };
 
         function init() {
             serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
             javaIp.textContent = `${SERVER_IP}:${SERVER_PORT}`;
             
-            // Изначально скрываем Java-секцию
-            document.querySelectorAll('.java-badge, .java-section').forEach(el => {
-                el.style.display = 'none';
-            });
-            
-            // Показываем только на десктопах
-            if (window.innerWidth >= 769) {
-                document.querySelector('.java-badge').style.display = 'flex';
-                document.querySelector('.java-section').style.display = 'block';
+            // Плавное появление Java-секции
+            if (window.innerWidth >= 769 && javaSection) {
+                javaSection.style.display = 'block';
+                setTimeout(() => {
+                    javaSection.classList.add('visible');
+                }, 300);
             }
             
             createEmojiParticles();
@@ -755,25 +765,24 @@
                     vy: (Math.random() - 0.5) * MAX_SPEED,
                     size: size,
                     rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 3,
-                    windFactor: 0.7 + Math.random() * 0.6 // Разное влияние ветра
+                    rotationSpeed: (Math.random() - 0.5) * 1 // Уменьшено
                 });
             }
         }
 
         function updateWind(timestamp) {
-            if (!wind.lastChange) wind.lastChange = timestamp;
-            
-            // Плавное изменение ветра
-            wind.x += (wind.targetX - wind.x) * WIND_SMOOTHING;
-            wind.y += (wind.targetY - wind.y) * WIND_SMOOTHING;
-            
-            // Периодически меняем направление ветра плавно
-            if (timestamp - wind.lastChange > WIND_CHANGE_INTERVAL) {
-                wind.targetX = (Math.random() - 0.5) * WIND_FORCE;
-                wind.targetY = (Math.random() - 0.5) * WIND_FORCE;
-                wind.lastChange = timestamp;
+            if (timestamp - lastWindUpdate > WIND_CHANGE_INTERVAL) {
+                windTarget = {
+                    x: (Math.random() - 0.5) * MAX_WIND_FORCE,
+                    y: (Math.random() - 0.5) * MAX_WIND_FORCE
+                };
+                lastWindUpdate = timestamp;
             }
+            
+            // Медленное изменение ветра
+            const windChangeSpeed = 0.00001; // Было 0.00005
+            wind.x += (windTarget.x - wind.x) * windChangeSpeed;
+            wind.y += (windTarget.y - wind.y) * windChangeSpeed;
             
             requestAnimationFrame(updateWind);
         }
@@ -790,13 +799,12 @@
                 p.vx *= DAMPING;
                 p.vy *= DAMPING;
                 
-                // Применяем ветер с учетом индивидуального фактора
-                p.vx += wind.x * p.windFactor * deltaTime;
-                p.vy += wind.y * p.windFactor * deltaTime;
+                p.vx += wind.x * deltaTime;
+                p.vy += wind.y * deltaTime;
                 
                 p.x += p.vx * deltaTime;
                 p.y += p.vy * deltaTime;
-                p.rotation += p.rotationSpeed * deltaTime * 0.05;
+                p.rotation += p.rotationSpeed * deltaTime * 0.03; // Замедлено
                 p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
                 
                 // Исправленный выход за границы
@@ -904,10 +912,15 @@
             // Надежное скрытие Java-элементов на мобильных устройствах
             if (window.innerWidth >= 769) {
                 document.querySelector('.java-badge').style.display = 'flex';
-                document.querySelector('.java-section').style.display = 'block';
+                if (javaSection) {
+                    javaSection.style.display = 'block';
+                    setTimeout(() => {
+                        javaSection.classList.add('visible');
+                    }, 100);
+                }
             } else {
                 document.querySelector('.java-badge').style.display = 'none';
-                document.querySelector('.java-section').style.display = 'none';
+                if (javaSection) javaSection.style.display = 'none';
             }
             
             updateScaleFactor();
@@ -996,7 +1009,8 @@
         function toggleUI() {
             uiVisible = !uiVisible;
             document.body.classList.toggle('ui-hidden', !uiVisible);
-            uiToggle.innerHTML = uiVisible ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+            const eyeIcon = uiToggle.querySelector('.eye-icon');
+            eyeIcon.className = uiVisible ? 'fas fa-eye-slash eye-icon' : 'fas fa-eye eye-icon';
             playClickSound();
         }
 

@@ -515,6 +515,11 @@
             opacity: 1;
         }
 
+        .ui-toggle i {
+            margin-top: -1px;
+            margin-left: -1px;
+        }
+
         .mobile-only {
             display: none;
         }
@@ -664,19 +669,19 @@
         
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
         const EMOJI_COUNT = 12;
-        const MIN_SPEED = 0.2;
-        const MAX_SPEED = 1.0;
+        const MIN_SPEED = 0.4;
+        const MAX_SPEED = 1.5;
         const INTERACTIVE_OPACITY = 0.15;
-        const REPULSION_FORCE = 0.12;
-        const MIN_DISTANCE = 120;
-        const DAMPING = 0.96;
-        const WIND_FORCE = 0.0001;
-        const WIND_CHANGE_INTERVAL = 20000;
+        const REPULSION_FORCE = 0.15;
+        const MIN_DISTANCE = 100;
+        const DAMPING = 0.94;
+        const WIND_FORCE = 0.00015; // Значительно уменьшенная сила ветра
+        const WIND_CHANGE_INTERVAL = 20000; // Более редкие изменения ветра
         const DRAG_HISTORY_SIZE = 7;
-        const INERTIA_MULTIPLIER = 0.7;
+        const INERTIA_MULTIPLIER = 0.8;
         const SCREEN_MARGIN = 60;
-        const MAX_PUSH_FORCE = 0.4;
-        const MAX_WIND_FORCE = 0.0002;
+        const MAX_PUSH_FORCE = 0.5;
+        const WIND_SMOOTHING = 0.05; // Плавность изменения ветра
         
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
@@ -700,28 +705,25 @@
         let wind = {
             x: (Math.random() - 0.5) * WIND_FORCE,
             y: (Math.random() - 0.5) * WIND_FORCE,
+            targetX: (Math.random() - 0.5) * WIND_FORCE,
+            targetY: (Math.random() - 0.5) * WIND_FORCE,
             lastChange: 0
         };
         let scaleFactor = 1;
-        let lastWindUpdate = 0;
-        let windTarget = {
-            x: (Math.random() - 0.5) * MAX_WIND_FORCE,
-            y: (Math.random() - 0.5) * MAX_WIND_FORCE
-        };
 
         function init() {
             serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
             javaIp.textContent = `${SERVER_IP}:${SERVER_PORT}`;
             
-            // Сразу скрываем Java-секцию на мобильных
-            if (window.innerWidth < 769) {
-                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
-                    el.style.display = 'none';
-                });
-            } else {
-                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
-                    el.style.display = 'flex';
-                });
+            // Изначально скрываем Java-секцию
+            document.querySelectorAll('.java-badge, .java-section').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // Показываем только на десктопах
+            if (window.innerWidth >= 769) {
+                document.querySelector('.java-badge').style.display = 'flex';
+                document.querySelector('.java-section').style.display = 'block';
             }
             
             createEmojiParticles();
@@ -753,24 +755,25 @@
                     vy: (Math.random() - 0.5) * MAX_SPEED,
                     size: size,
                     rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 2
+                    rotationSpeed: (Math.random() - 0.5) * 3,
+                    windFactor: 0.7 + Math.random() * 0.6 // Разное влияние ветра
                 });
             }
         }
 
         function updateWind(timestamp) {
-            if (timestamp - lastWindUpdate > WIND_CHANGE_INTERVAL) {
-                windTarget = {
-                    x: (Math.random() - 0.5) * MAX_WIND_FORCE,
-                    y: (Math.random() - 0.5) * MAX_WIND_FORCE
-                };
-                lastWindUpdate = timestamp;
-            }
+            if (!wind.lastChange) wind.lastChange = timestamp;
             
             // Плавное изменение ветра
-            const windChangeSpeed = 0.00005;
-            wind.x += (windTarget.x - wind.x) * windChangeSpeed;
-            wind.y += (windTarget.y - wind.y) * windChangeSpeed;
+            wind.x += (wind.targetX - wind.x) * WIND_SMOOTHING;
+            wind.y += (wind.targetY - wind.y) * WIND_SMOOTHING;
+            
+            // Периодически меняем направление ветра плавно
+            if (timestamp - wind.lastChange > WIND_CHANGE_INTERVAL) {
+                wind.targetX = (Math.random() - 0.5) * WIND_FORCE;
+                wind.targetY = (Math.random() - 0.5) * WIND_FORCE;
+                wind.lastChange = timestamp;
+            }
             
             requestAnimationFrame(updateWind);
         }
@@ -787,8 +790,9 @@
                 p.vx *= DAMPING;
                 p.vy *= DAMPING;
                 
-                p.vx += wind.x * deltaTime;
-                p.vy += wind.y * deltaTime;
+                // Применяем ветер с учетом индивидуального фактора
+                p.vx += wind.x * p.windFactor * deltaTime;
+                p.vy += wind.y * p.windFactor * deltaTime;
                 
                 p.x += p.vx * deltaTime;
                 p.y += p.vy * deltaTime;

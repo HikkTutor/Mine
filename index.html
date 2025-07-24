@@ -44,13 +44,7 @@
             background: var(--dark);
             font-family: 'Arial', sans-serif;
             color: white;
-            text-align: center;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
             position: relative;
             overflow: hidden;
             cursor: default;
@@ -61,10 +55,12 @@
             max-width: 500px;
             min-width: 300px;
             padding: 15px;
-            position: relative;
-            z-index: 1;
-            margin: 0 auto;
-            transition: transform 0.4s, opacity 0.4s;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
         }
 
         .title-box {
@@ -88,6 +84,7 @@
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             word-break: break-word;
+            text-align: center;
         }
 
         .badges-container {
@@ -132,6 +129,7 @@
             margin: 5px 0 0;
             color: #333;
             font-weight: bold;
+            text-align: center;
         }
 
         .btn {
@@ -285,12 +283,13 @@
             position: absolute;
             font-size: clamp(2rem, 8vw, 3rem);
             opacity: 0.08;
-            z-index: 0;
+            z-index: 1;
             pointer-events: none;
             user-select: none;
             transform: translate(-50%, -50%);
             transition: transform 0.2s, opacity 0.3s;
             text-shadow: 0 0 5px rgba(0,0,0,0.3);
+            will-change: transform;
         }
 
         .emoji-particle.interactive {
@@ -494,23 +493,26 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 50px;
-            height: 50px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             background: linear-gradient(90deg, var(--orange) 0%, var(--yellow) 100%);
             color: #000;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
+            font-size: 1.1rem;
             z-index: 1000;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             cursor: pointer;
             transition: all 0.3s;
+            transform: scale(1);
+            opacity: 0.9;
         }
 
         .ui-toggle:hover {
-            transform: scale(1.1);
+            transform: scale(1.15);
+            opacity: 1;
         }
 
         .mobile-only {
@@ -521,17 +523,11 @@
             .mobile-only {
                 display: block;
             }
-            .ui-toggle {
-                width: 40px;
-                height: 40px;
-                font-size: 1.3rem;
-            }
         }
 
         body.ui-hidden .container {
+            transform: translate(-50%, 150%) scale(0.95);
             opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.4s, visibility 0.4s;
             pointer-events: none;
         }
 
@@ -570,6 +566,13 @@
             .copy-btn {
                 width: 100%;
                 justify-content: center;
+            }
+            .ui-toggle {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+                bottom: 15px;
+                right: 15px;
             }
         }
     </style>
@@ -661,16 +664,18 @@
         
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
         const EMOJI_COUNT = 12;
-        const MIN_SPEED = 0.1;
-        const MAX_SPEED = 0.8; // Увеличена максимальная скорость
+        const MIN_SPEED = 0.4;
+        const MAX_SPEED = 1.5; // Увеличена скорость в 3 раза
         const INTERACTIVE_OPACITY = 0.15;
-        const REPULSION_FORCE = 0.03; // Усилено отталкивание
-        const MIN_DISTANCE = 100; // Уменьшено минимальное расстояние
-        const DAMPING = 0.95; // Уменьшено замедление для большей инерции
-        const WIND_FORCE = 0.0005; // Усилен ветер
+        const REPULSION_FORCE = 0.15; // Увеличена сила отталкивания в 5 раз
+        const MIN_DISTANCE = 100;
+        const DAMPING = 0.94;
+        const WIND_FORCE = 0.0005;
         const WIND_CHANGE_INTERVAL = 5000;
-        const DRAG_HISTORY_SIZE = 5;
-        const INERTIA_MULTIPLIER = 1.2; // Увеличена инерция
+        const DRAG_HISTORY_SIZE = 7;
+        const INERTIA_MULTIPLIER = 0.8;
+        const SCREEN_MARGIN = 60;
+        const MAX_PUSH_FORCE = 0.5;
         
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
@@ -684,6 +689,7 @@
         const clickSound = document.getElementById('click-sound');
         const creeperSound = document.getElementById('creeper-sound');
         const uiToggle = document.getElementById('ui-toggle');
+        const container = document.querySelector('.container');
         
         let emojiParticles = [];
         let lastTime = 0;
@@ -695,10 +701,18 @@
             y: (Math.random() - 0.5) * WIND_FORCE,
             lastChange: 0
         };
+        let scaleFactor = 1;
 
         function init() {
             serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
             javaIp.textContent = `${SERVER_IP}:${SERVER_PORT}`;
+            
+            // Сразу скрываем Java-секцию на мобильных
+            if (window.innerWidth < 769) {
+                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
+                    el.style.display = 'none';
+                });
+            }
             
             createEmojiParticles();
             requestAnimationFrame(animateEmojis);
@@ -706,6 +720,9 @@
             checkServerStatus();
             setInterval(checkServerStatus, CHECK_INTERVAL);
             setupEventListeners();
+            
+            // Инициализация масштаба
+            updateScaleFactor();
         }
 
         function createEmojiParticles() {
@@ -720,13 +737,13 @@
                 
                 emojiParticles.push({
                     element: emoji,
-                    x: Math.random() * window.innerWidth,
-                    y: Math.random() * window.innerHeight,
+                    x: Math.random() * (window.innerWidth - SCREEN_MARGIN * 2) + SCREEN_MARGIN,
+                    y: Math.random() * (window.innerHeight - SCREEN_MARGIN * 2) + SCREEN_MARGIN,
                     vx: (Math.random() - 0.5) * MAX_SPEED,
                     vy: (Math.random() - 0.5) * MAX_SPEED,
                     size: size,
                     rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 2
+                    rotationSpeed: (Math.random() - 0.5) * 3
                 });
             }
         }
@@ -741,7 +758,7 @@
         }
 
         function animateEmojis(timestamp) {
-            const deltaTime = timestamp - lastTime || 16;
+            const deltaTime = Math.min(50, timestamp - lastTime || 16);
             lastTime = timestamp;
             
             for (let i = 0; i < emojiParticles.length; i++) {
@@ -752,20 +769,20 @@
                 p.vx *= DAMPING;
                 p.vy *= DAMPING;
                 
-                p.vx += wind.x;
-                p.vy += wind.y;
+                p.vx += wind.x * deltaTime;
+                p.vy += wind.y * deltaTime;
                 
                 p.x += p.vx * deltaTime;
                 p.y += p.vy * deltaTime;
-                p.rotation += p.rotationSpeed;
+                p.rotation += p.rotationSpeed * deltaTime * 0.05;
                 p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
                 
-                // Улучшенное поведение у границ экрана
-                if (p.x < -p.size/2) p.x = window.innerWidth + p.size/2;
-                else if (p.x > window.innerWidth + p.size/2) p.x = -p.size/2;
+                // Плавный переход через границы с учетом масштаба
+                if (p.x < -p.size * scaleFactor) p.x = window.innerWidth + p.size * scaleFactor;
+                else if (p.x > window.innerWidth + p.size * scaleFactor) p.x = -p.size * scaleFactor;
                 
-                if (p.y < -p.size/2) p.y = window.innerHeight + p.size/2;
-                else if (p.y > window.innerHeight + p.size/2) p.y = -p.size/2;
+                if (p.y < -p.size * scaleFactor) p.y = window.innerHeight + p.size * scaleFactor;
+                else if (p.y > window.innerHeight + p.size * scaleFactor) p.y = -p.size * scaleFactor;
                 
                 p.element.style.left = `${p.x}px`;
                 p.element.style.top = `${p.y}px`;
@@ -781,17 +798,20 @@
                     const dx = p.x - p2.x;
                     const dy = p.y - p2.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
+                    const minDist = MIN_DISTANCE * scaleFactor;
                     
-                    if (distance < MIN_DISTANCE && distance > 0) {
+                    if (distance < minDist && distance > 0) {
                         const angle = Math.atan2(dy, dx);
-                        const force = Math.pow((MIN_DISTANCE - distance) / MIN_DISTANCE, 2) * REPULSION_FORCE;
+                        const force = Math.pow((minDist - distance) / minDist, 2) * REPULSION_FORCE;
                         
-                        p.vx += force * Math.cos(angle);
-                        p.vy += force * Math.sin(angle);
-                        p2.vx -= force * Math.cos(angle);
-                        p2.vy -= force * Math.sin(angle);
+                        const pushForce = Math.min(MAX_PUSH_FORCE, force);
                         
-                        if (Math.random() > 0.95) {
+                        p.vx += pushForce * Math.cos(angle);
+                        p.vy += pushForce * Math.sin(angle);
+                        p2.vx -= pushForce * Math.cos(angle);
+                        p2.vy -= pushForce * Math.sin(angle);
+                        
+                        if (Math.random() > 0.97) {
                             playCreeperSound();
                         }
                     }
@@ -835,9 +855,42 @@
             window.addEventListener('mouseup', endDrag);
             window.addEventListener('touchend', endDrag);
             window.addEventListener('touchcancel', endDrag);
-            window.addEventListener('resize', adjustForSmallScreens);
+            window.addEventListener('resize', handleResize);
             uiToggle.addEventListener('click', toggleUI);
-            adjustForSmallScreens();
+            window.addEventListener('wheel', updateScaleFactor, { passive: true });
+        }
+        
+        function updateScaleFactor() {
+            // Определяем масштаб страницы
+            const zoom = window.visualViewport ? window.visualViewport.scale : 1;
+            scaleFactor = zoom;
+        }
+        
+        function handleResize() {
+            // Корректируем позицию контейнера
+            container.style.top = '50%';
+            container.style.left = '50%';
+            
+            // Корректируем позиции эмодзи
+            emojiParticles.forEach(p => {
+                if (p.x > window.innerWidth) p.x = window.innerWidth - SCREEN_MARGIN;
+                if (p.y > window.innerHeight) p.y = window.innerHeight - SCREEN_MARGIN;
+                p.element.style.left = `${p.x}px`;
+                p.element.style.top = `${p.y}px`;
+            });
+            
+            // Обновляем отображение Java-элементов
+            if (window.innerWidth >= 769) {
+                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
+                    el.style.display = 'flex';
+                });
+            } else {
+                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
+                    el.style.display = 'none';
+                });
+            }
+            
+            updateScaleFactor();
         }
 
         function handleTouchStart(e) {
@@ -893,7 +946,7 @@
         function endDrag() {
             if (isDragging && dragEmoji) {
                 dragEmoji.element.style.opacity = INTERACTIVE_OPACITY + '';
-                dragEmoji.element.style.zIndex = '0';
+                dragEmoji.element.style.zIndex = '1';
                 
                 if (dragEmoji.dragHistory.length > 1) {
                     const first = dragEmoji.dragHistory[0];
@@ -903,6 +956,13 @@
                     if (dt > 0) {
                         dragEmoji.vx = (last.x - first.x) / dt * INERTIA_MULTIPLIER;
                         dragEmoji.vy = (last.y - first.y) / dt * INERTIA_MULTIPLIER;
+                        
+                        // Ограничиваем максимальную скорость
+                        const speed = Math.sqrt(dragEmoji.vx * dragEmoji.vx + dragEmoji.vy * dragEmoji.vy);
+                        if (speed > MAX_SPEED * 3) {
+                            dragEmoji.vx = (dragEmoji.vx / speed) * MAX_SPEED * 3;
+                            dragEmoji.vy = (dragEmoji.vy / speed) * MAX_SPEED * 3;
+                        }
                     }
                 }
                 
@@ -969,12 +1029,6 @@
             statusIndicator.classList.remove('online');
             statusText.textContent = 'Оффлайн';
             playerCount.classList.remove('show');
-        }
-
-        function adjustForSmallScreens() {
-            document.querySelectorAll('.java-badge, .java-section').forEach(el => {
-                el.style.display = window.innerWidth >= 769 ? 'flex' : 'none';
-            });
         }
 
         window.addEventListener('load', init);

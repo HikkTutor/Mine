@@ -58,7 +58,7 @@
 
         .container {
             width: 100%;
-            max-width: 500px;
+            max-width: 700px; /* Увеличено для больших экранов */
             min-width: 300px;
             padding: 15px;
             position: relative;
@@ -84,7 +84,7 @@
         }
 
         h1 {
-            font-size: clamp(1.8rem, 6vw, 2.5rem);
+            font-size: clamp(1.8rem, 6vw, 2.8rem); /* Увеличено для больших экранов */
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             word-break: break-word;
@@ -103,7 +103,7 @@
             color: var(--yellow);
             padding: 3px 10px;
             border-radius: 20px;
-            font-size: 0.9em;
+            font-size: clamp(0.8rem, 3vw, 1.1rem); /* Адаптивный размер */
             font-weight: bold;
             display: flex;
             align-items: center;
@@ -128,7 +128,7 @@
         }
 
         .subtitle {
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(0.8rem, 3vw, 1.1rem); /* Адаптивный размер */
             margin: 5px 0 0;
             color: #333;
             font-weight: bold;
@@ -140,7 +140,7 @@
             justify-content: center;
             gap: 10px;
             color: #000;
-            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-size: clamp(1rem, 4vw, 1.3rem); /* Адаптивный размер */
             font-weight: bold;
             padding: 12px;
             border-radius: 8px;
@@ -230,7 +230,7 @@
         .features h3 {
             color: var(--yellow);
             margin-bottom: 10px;
-            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-size: clamp(1rem, 4vw, 1.3rem); /* Адаптивный размер */
             display: flex;
             align-items: center;
             gap: 8px;
@@ -242,7 +242,7 @@
 
         .features li {
             margin-bottom: 8px;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-size: clamp(0.8rem, 3vw, 1.1rem); /* Адаптивный размер */
         }
 
         .notification {
@@ -411,7 +411,7 @@
         .java-section h3 {
             color: #b0ffa9;
             margin-bottom: 12px;
-            font-size: clamp(1.1rem, 4vw, 1.3rem);
+            font-size: clamp(1.1rem, 4vw, 1.3rem); /* Адаптивный размер */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -494,8 +494,8 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: linear-gradient(90deg, var(--orange) 0%, var(--yellow) 100%);
             color: #000;
@@ -507,6 +507,13 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             cursor: pointer;
             transition: all 0.3s;
+        }
+
+        .ui-toggle i {
+            position: absolute; /* Центрирование иконки */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .ui-toggle:hover {
@@ -535,6 +542,63 @@
 
         body.ui-hidden .signature {
             opacity: 0;
+        }
+
+        /* Новые медиа-запросы для больших экранов */
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 900px;
+            }
+            
+            h1 {
+                font-size: 3rem;
+            }
+            
+            .features li {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (min-width: 1600px) {
+            .container {
+                max-width: 1100px;
+            }
+            
+            h1 {
+                font-size: 3.5rem;
+            }
+            
+            .features li {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (min-width: 2000px) {
+            .container {
+                max-width: 1300px;
+            }
+            
+            .title-box {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 4rem;
+            }
+            
+            .btn {
+                padding: 16px;
+                font-size: 1.5rem;
+            }
+            
+            .features {
+                padding: 20px;
+            }
+            
+            .features li {
+                font-size: 1.3rem;
+                margin-bottom: 12px;
+            }
         }
 
         @media (max-width: 500px) {
@@ -566,8 +630,8 @@
                 justify-content: center;
             }
             .ui-toggle {
-                width: 45px;
-                height: 45px;
+                width: 40px;
+                height: 40px;
                 font-size: 1.3rem;
             }
         }
@@ -705,6 +769,11 @@
             checkServerStatus();
             setInterval(checkServerStatus, CHECK_INTERVAL);
             setupEventListeners();
+            
+            // Исправление для больших экранов
+            if (window.innerWidth > 2000) {
+                document.body.style.zoom = "150%";
+            }
         }
 
         function createEmojiParticles() {
@@ -759,11 +828,13 @@
                 p.rotation += p.rotationSpeed;
                 p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
                 
-                if (p.x < -p.size) p.x = window.innerWidth + p.size;
-                else if (p.x > window.innerWidth + p.size) p.x = -p.size;
+                // Исправление границ для больших экранов
+                const safeMargin = p.size * 2;
+                if (p.x < -safeMargin) p.x = window.innerWidth + safeMargin;
+                else if (p.x > window.innerWidth + safeMargin) p.x = -safeMargin;
                 
-                if (p.y < -p.size) p.y = window.innerHeight + p.size;
-                else if (p.y > window.innerHeight + p.size) p.y = -p.size;
+                if (p.y < -safeMargin) p.y = window.innerHeight + safeMargin;
+                else if (p.y > window.innerHeight + safeMargin) p.y = -safeMargin;
                 
                 p.element.style.left = `${p.x}px`;
                 p.element.style.top = `${p.y}px`;
@@ -833,9 +904,26 @@
             window.addEventListener('mouseup', endDrag);
             window.addEventListener('touchend', endDrag);
             window.addEventListener('touchcancel', endDrag);
-            window.addEventListener('resize', adjustForSmallScreens);
+            window.addEventListener('resize', handleResize);
             uiToggle.addEventListener('click', toggleUI);
-            adjustForSmallScreens();
+            handleResize();
+        }
+
+        function handleResize() {
+            // Пересчет позиций при ресайзе
+            emojiParticles.forEach(p => {
+                p.x = Math.min(p.x, window.innerWidth + p.size);
+                p.y = Math.min(p.y, window.innerHeight + p.size);
+                p.element.style.left = `${p.x}px`;
+                p.element.style.top = `${p.y}px`;
+            });
+            
+            // Адаптация для очень больших экранов
+            if (window.innerWidth > 2000) {
+                document.body.style.zoom = "150%";
+            } else {
+                document.body.style.zoom = "100%";
+            }
         }
 
         function handleTouchStart(e) {
@@ -967,12 +1055,6 @@
             statusIndicator.classList.remove('online');
             statusText.textContent = 'Оффлайн';
             playerCount.classList.remove('show');
-        }
-
-        function adjustForSmallScreens() {
-            document.querySelectorAll('.java-badge, .java-section').forEach(el => {
-                el.style.display = window.innerWidth >= 769 ? 'flex' : 'none';
-            });
         }
 
         window.addEventListener('load', init);

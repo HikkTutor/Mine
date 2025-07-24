@@ -62,9 +62,10 @@
             min-width: 300px;
             padding: 15px;
             position: relative;
-            z-index: 1;
+            z-index: 10;
             margin: 0 auto;
-            transition: transform 0.4s, opacity 0.4s;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            will-change: transform, opacity;
         }
 
         .title-box {
@@ -149,7 +150,7 @@
             border: none;
             cursor: pointer;
             width: 100%;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
@@ -285,7 +286,7 @@
             position: absolute;
             font-size: clamp(2rem, 8vw, 3rem);
             opacity: 0.08;
-            z-index: 0;
+            z-index: 1;
             pointer-events: none;
             user-select: none;
             transform: translate(-50%, -50%);
@@ -494,8 +495,8 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             background: linear-gradient(90deg, var(--orange) 0%, var(--yellow) 100%);
             color: #000;
@@ -504,16 +505,16 @@
             align-items: center;
             font-size: 1.3rem;
             z-index: 1000;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             cursor: pointer;
-            transition: all 0.3s;
-            padding: 0;
-            margin: 0;
-            border: none;
+            transition: all 0.3s ease;
+            transform: scale(1);
+            opacity: 0.9;
         }
 
         .ui-toggle:hover {
             transform: scale(1.1);
+            opacity: 1;
         }
 
         .mobile-only {
@@ -527,7 +528,7 @@
         }
 
         body.ui-hidden .container {
-            transform: translateY(100%);
+            transform: translateY(100%) scale(0.95);
             opacity: 0;
             pointer-events: none;
         }
@@ -569,27 +570,11 @@
                 justify-content: center;
             }
             .ui-toggle {
-                width: 35px;
-                height: 35px;
+                width: 38px;
+                height: 38px;
                 font-size: 1.1rem;
-            }
-        }
-
-        @media (min-width: 1200px) {
-            .container {
-                max-width: 550px;
-            }
-        }
-
-        @media (min-width: 1600px) {
-            .container {
-                max-width: 600px;
-            }
-        }
-
-        @media (min-width: 2000px) {
-            .container {
-                max-width: 650px;
+                bottom: 15px;
+                right: 15px;
             }
         }
     </style>
@@ -681,16 +666,17 @@
         
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
         const EMOJI_COUNT = 12;
-        const MIN_SPEED = 0.1;
-        const MAX_SPEED = 1.0;  // Увеличена максимальная скорость
+        const MIN_SPEED = 0.2;
+        const MAX_SPEED = 1.0; // Увеличена скорость
         const INTERACTIVE_OPACITY = 0.15;
-        const REPULSION_FORCE = 0.02;  // Увеличена сила отталкивания
-        const MIN_DISTANCE = 100;  // Уменьшено минимальное расстояние
-        const DAMPING = 0.98;
-        const WIND_FORCE = 0.0003;  // Увеличена сила ветра
+        const REPULSION_FORCE = 0.03; // Увеличена сила отталкивания
+        const MIN_DISTANCE = 100;
+        const DAMPING = 0.96;
+        const WIND_FORCE = 0.0003;
         const WIND_CHANGE_INTERVAL = 5000;
         const DRAG_HISTORY_SIZE = 5;
-        const INERTIA_MULTIPLIER = 0.8;  // Увеличена инерция
+        const INERTIA_MULTIPLIER = 0.7;
+        const SCREEN_MARGIN = 50;
         
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
@@ -726,6 +712,13 @@
             checkServerStatus();
             setInterval(checkServerStatus, CHECK_INTERVAL);
             setupEventListeners();
+            
+            // Сразу скрываем Java-секцию на мобильных
+            if (window.innerWidth < 769) {
+                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
+                    el.style.display = 'none';
+                });
+            }
         }
 
         function createEmojiParticles() {
@@ -740,8 +733,8 @@
                 
                 emojiParticles.push({
                     element: emoji,
-                    x: Math.random() * window.innerWidth,
-                    y: Math.random() * window.innerHeight,
+                    x: Math.random() * (window.innerWidth - SCREEN_MARGIN * 2) + SCREEN_MARGIN,
+                    y: Math.random() * (window.innerHeight - SCREEN_MARGIN * 2) + SCREEN_MARGIN,
                     vx: (Math.random() - 0.5) * MAX_SPEED,
                     vy: (Math.random() - 0.5) * MAX_SPEED,
                     size: size,
@@ -780,13 +773,12 @@
                 p.rotation += p.rotationSpeed;
                 p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
                 
-                // Улучшенная обработка границ экрана
-                const safeMargin = p.size * 2;
-                if (p.x < -safeMargin) p.x = window.innerWidth + safeMargin;
-                else if (p.x > window.innerWidth + safeMargin) p.x = -safeMargin;
+                // Плавный переход через границы
+                if (p.x < -p.size) p.x = window.innerWidth + p.size;
+                else if (p.x > window.innerWidth + p.size) p.x = -p.size;
                 
-                if (p.y < -safeMargin) p.y = window.innerHeight + safeMargin;
-                else if (p.y > window.innerHeight + safeMargin) p.y = -safeMargin;
+                if (p.y < -p.size) p.y = window.innerHeight + p.size;
+                else if (p.y > window.innerHeight + p.size) p.y = -p.size;
                 
                 p.element.style.left = `${p.x}px`;
                 p.element.style.top = `${p.y}px`;
@@ -807,13 +799,10 @@
                         const angle = Math.atan2(dy, dx);
                         const force = Math.pow((MIN_DISTANCE - distance) / MIN_DISTANCE, 2) * REPULSION_FORCE;
                         
-                        // Усиленное отталкивание для активного эмодзи
-                        const multiplier = (dragEmoji === p || dragEmoji === p2) ? 2.0 : 1.0;
-                        
-                        p.vx += force * Math.cos(angle) * multiplier;
-                        p.vy += force * Math.sin(angle) * multiplier;
-                        p2.vx -= force * Math.cos(angle) * multiplier;
-                        p2.vy -= force * Math.sin(angle) * multiplier;
+                        p.vx += force * Math.cos(angle);
+                        p.vy += force * Math.sin(angle);
+                        p2.vx -= force * Math.cos(angle);
+                        p2.vy -= force * Math.sin(angle);
                         
                         if (Math.random() > 0.95) {
                             playCreeperSound();
@@ -859,27 +848,29 @@
             window.addEventListener('mouseup', endDrag);
             window.addEventListener('touchend', endDrag);
             window.addEventListener('touchcancel', endDrag);
-            window.addEventListener('resize', adjustForSmallScreens);
+            window.addEventListener('resize', handleResize);
             uiToggle.addEventListener('click', toggleUI);
-            adjustForSmallScreens();
+        }
+        
+        function handleResize() {
+            // Корректируем позиции эмодзи при изменении размера окна
+            emojiParticles.forEach(p => {
+                if (p.x > window.innerWidth) p.x = window.innerWidth - SCREEN_MARGIN;
+                if (p.y > window.innerHeight) p.y = window.innerHeight - SCREEN_MARGIN;
+                p.element.style.left = `${p.x}px`;
+                p.element.style.top = `${p.y}px`;
+            });
             
-            // Обработка масштабирования
-            let lastScale = 1;
-            window.addEventListener('wheel', (e) => {
-                if (e.ctrlKey) {
-                    e.preventDefault();
-                    const scale = e.deltaY > 0 ? 0.9 : 1.1;
-                    lastScale *= scale;
-                    
-                    // Пересчет позиций эмодзи при масштабировании
-                    emojiParticles.forEach(p => {
-                        p.x = (p.x - window.innerWidth/2) * scale + window.innerWidth/2;
-                        p.y = (p.y - window.innerHeight/2) * scale + window.innerHeight/2;
-                        p.vx *= scale;
-                        p.vy *= scale;
-                    });
-                }
-            }, { passive: false });
+            // Обновляем отображение Java-элементов
+            if (window.innerWidth >= 769) {
+                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
+                    el.style.display = 'flex';
+                });
+            } else {
+                document.querySelectorAll('.java-badge, .java-section').forEach(el => {
+                    el.style.display = 'none';
+                });
+            }
         }
 
         function handleTouchStart(e) {
@@ -935,7 +926,7 @@
         function endDrag() {
             if (isDragging && dragEmoji) {
                 dragEmoji.element.style.opacity = INTERACTIVE_OPACITY + '';
-                dragEmoji.element.style.zIndex = '0';
+                dragEmoji.element.style.zIndex = '1';
                 
                 if (dragEmoji.dragHistory.length > 1) {
                     const first = dragEmoji.dragHistory[0];
@@ -1011,12 +1002,6 @@
             statusIndicator.classList.remove('online');
             statusText.textContent = 'Оффлайн';
             playerCount.classList.remove('show');
-        }
-
-        function adjustForSmallScreens() {
-            document.querySelectorAll('.java-badge, .java-section').forEach(el => {
-                el.style.display = window.innerWidth >= 769 ? 'flex' : 'none';
-            });
         }
 
         window.addEventListener('load', init);

@@ -6,7 +6,6 @@
     <title>Minecraft Bedrock 1.21.90 / Java 1.21.6 | Выживание</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Запрет выделения текста */
         * {
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -15,7 +14,6 @@
             touch-action: manipulation;
         }
         
-        /* Разрешаем выделение только для Java адреса */
         .java-address {
             -webkit-user-select: text;
             -moz-user-select: text;
@@ -190,7 +188,6 @@
             transform: translateY(-3px);
         }
 
-        /* Эффект нажатия */
         .btn:after {
             content: '';
             position: absolute;
@@ -246,7 +243,6 @@
             font-size: clamp(0.8rem, 3vw, 1rem);
         }
 
-        /* Унифицированные уведомления с плавной анимацией */
         .notification {
             position: fixed;
             bottom: 20px;
@@ -283,7 +279,6 @@
             border-left-color: var(--java-green);
         }
 
-        /* Стили для интерактивных эмодзи */
         .emoji-particle {
             position: absolute;
             font-size: clamp(2rem, 8vw, 3rem);
@@ -592,21 +587,18 @@
     </audio>
 
     <script>
-        // ========== НАСТРОЙКИ СЕРВЕРА ========== //
         const SERVER_IP = "88.151.117.88";
         const SERVER_PORT = "25622";
         const CHECK_INTERVAL = 15000;
-        // ======================================= //
         
-        // ========== НАСТРОЙКИ ЭМОДЗИ ========== //
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
         const EMOJI_COUNT = 12;
-        const MIN_SPEED = 0.1; // Уменьшена минимальная скорость
-        const MAX_SPEED = 0.6; // Уменьшена максимальная скорость
+        const MIN_SPEED = 0.4;
+        const MAX_SPEED = 1.2;
         const INTERACTIVE_OPACITY = 0.15;
-        const FRICTION = 0.98; // Трение для плавного замедления
-        // ======================================= //
-
+        const REPULSION_FORCE = 0.05;
+        const MIN_DISTANCE = 100;
+        
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
         const playerCount = document.getElementById('player-count');
@@ -667,34 +659,17 @@
                 
                 if (p === dragEmoji && isDragging) continue;
                 
-                // Применяем трение для плавного замедления
-                p.vx *= FRICTION;
-                p.vy *= FRICTION;
-                
-                // Игнорируем микроскорости
-                if (Math.abs(p.vx) < 0.01) p.vx = 0;
-                if (Math.abs(p.vy) < 0.01) p.vy = 0;
-                
                 p.x += p.vx * deltaTime;
                 p.y += p.vy * deltaTime;
                 p.rotation += p.rotationSpeed;
                 p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
                 
-                if (p.x < p.size/2) {
-                    p.x = p.size/2;
-                    p.vx = Math.abs(p.vx) * 0.8;
-                } else if (p.x > window.innerWidth - p.size/2) {
-                    p.x = window.innerWidth - p.size/2;
-                    p.vx = -Math.abs(p.vx) * 0.8;
-                }
+                // Тороидальное пространство - выход за границы
+                if (p.x < -p.size) p.x = window.innerWidth + p.size;
+                else if (p.x > window.innerWidth + p.size) p.x = -p.size;
                 
-                if (p.y < p.size/2) {
-                    p.y = p.size/2;
-                    p.vy = Math.abs(p.vy) * 0.8;
-                } else if (p.y > window.innerHeight - p.size/2) {
-                    p.y = window.innerHeight - p.size/2;
-                    p.vy = -Math.abs(p.vy) * 0.8;
-                }
+                if (p.y < -p.size) p.y = window.innerHeight + p.size;
+                else if (p.y > window.innerHeight + p.size) p.y = -p.size;
                 
                 p.element.style.left = `${p.x}px`;
                 p.element.style.top = `${p.y}px`;
@@ -704,28 +679,27 @@
                     const dx = p.x - p2.x;
                     const dy = p.y - p2.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
-                    const minDistance = (p.size + p2.size) / 2;
                     
-                    if (distance < minDistance) {
+                    if (distance < MIN_DISTANCE) {
                         const angle = Math.atan2(dy, dx);
-                        const targetX = p.x + Math.cos(angle) * minDistance;
-                        const targetY = p.y + Math.sin(angle) * minDistance;
+                        const force = (MIN_DISTANCE - distance) * REPULSION_FORCE;
                         
-                        // Уменьшенная сила отталкивания
-                        const ax = (targetX - p2.x) * 0.015;
-                        const ay = (targetY - p2.y) * 0.015;
+                        p.vx += force * Math.cos(angle);
+                        p.vy += force * Math.sin(angle);
+                        p2.vx -= force * Math.cos(angle);
+                        p2.vy -= force * Math.sin(angle);
                         
-                        p.vx -= ax;
-                        p.vy -= ay;
-                        p2.vx += ax;
-                        p2.vy += ay;
-                        
-                        if (Math.random() > 0.7) {
-                            creeperSound.currentTime = 0;
-                            creeperSound.volume = 0.1;
-                            creeperSound.play().catch(e => console.log("Audio play error:", e));
+                        if (Math.random() > 0.8) {
+                            playCreeperSound();
                         }
                     }
+                }
+                
+                // Поддержание минимальной скорости
+                const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                if (speed < MIN_SPEED && speed > 0) {
+                    p.vx = (p.vx / speed) * MIN_SPEED;
+                    p.vy = (p.vy / speed) * MIN_SPEED;
                 }
             }
             
@@ -799,7 +773,6 @@
                 dragEmoji.element.style.opacity = INTERACTIVE_OPACITY + '';
                 dragEmoji.element.style.zIndex = '0';
                 
-                // Умеренная скорость после броска
                 dragEmoji.vx = (Math.random() - 0.5) * MAX_SPEED;
                 dragEmoji.vy = (Math.random() - 0.5) * MAX_SPEED;
                 

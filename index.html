@@ -878,20 +878,63 @@
                 }
             });
 
+            // ИСПРАВЛЕНИЕ КНОПКИ КОПИРОВАНИЯ
             javaCopyBtn.addEventListener('click', function() {
                 playClickSound();
                 const textToCopy = `${SERVER_IP}:${SERVER_PORT}`;
                 
-                navigator.clipboard.writeText(textToCopy).then(() => {
-                    showNotification('IP скопирован<br><small>Пихай его в Minecraft Java</small>', true);
-                }).catch(err => {
-                    notificationText.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Ошибка копирования!<br><small>Скопируйте вручную: ' + textToCopy + '</small>';
-                    universalNotification.classList.add('show');
-                    setTimeout(() => {
-                        universalNotification.classList.remove('show');
-                    }, 5000);
-                });
+                // Современный метод копирования
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        showNotification('IP скопирован<br><small>Пихай его в Minecraft Java</small>', true);
+                    }).catch(err => {
+                        // Fallback для старых браузеров
+                        copyWithFallback(textToCopy);
+                    });
+                } else {
+                    // Метод для старых браузеров
+                    copyWithFallback(textToCopy);
+                }
             });
+
+            // Функция fallback для копирования
+            function copyWithFallback(text) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.top = 0;
+                textArea.style.left = 0;
+                textArea.style.opacity = 0;
+                
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        showNotification('IP скопирован (старый метод)<br><small>Пихай его в Minecraft Java</small>', true);
+                    } else {
+                        showFallbackNotification(text);
+                    }
+                } catch (err) {
+                    showFallbackNotification(text);
+                } finally {
+                    document.body.removeChild(textArea);
+                }
+            }
+            
+            // Уведомление с ручным копированием
+            function showFallbackNotification(text) {
+                notificationText.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i> Ошибка копирования!<br>
+                    <small>Скопируйте вручную: ${text}</small>
+                `;
+                universalNotification.classList.add('show');
+                setTimeout(() => {
+                    universalNotification.classList.remove('show');
+                }, 5000);
+            }
 
             emojiContainer.addEventListener('mousedown', startDrag);
             emojiContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
@@ -1041,9 +1084,19 @@
             creeperSound.play().catch(e => console.log("Audio play error:", e));
         }
 
+        // ИСПРАВЛЕНИЕ УВЕДОМЛЕНИЙ
         function showNotification(message, isJava = false) {
             notificationText.innerHTML = message;
-            universalNotification.className = 'notification' + (isJava ? ' java' : '');
+            
+            // Сбросить предыдущие классы
+            universalNotification.className = 'notification';
+            
+            // Добавить java-стиль если нужно
+            if (isJava) {
+                universalNotification.classList.add('java');
+            }
+            
+            // Показать уведомление
             universalNotification.classList.add('show');
             
             setTimeout(() => {

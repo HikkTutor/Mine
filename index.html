@@ -6,6 +6,33 @@
     <title>Minecraft Bedrock 1.21.90 / Java 1.21.6 | Выживание</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        .emoji-particle {
+            pointer-events: none !important;
+        }
+        
+        .emoji-particle.interactive {
+            pointer-events: auto !important;
+        }
+        
+        * {
+            touch-action: pan-x pan-y;
+        }
+        
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        .java-address {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
         :root {
             --yellow: #ffeb3b;
             --orange: #ff9800;
@@ -23,11 +50,6 @@
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
         }
 
         body {
@@ -38,26 +60,17 @@
             position: relative;
             overflow: hidden;
             cursor: default;
-            background-image: linear-gradient(45deg, #0d1a0d 0%, #1a1a1a 50%, #0d1a0d 100%);
-            background-size: 200% 200%;
-            animation: gradientAnimation 15s ease infinite;
-        }
-
-        @keyframes gradientAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
         }
 
         .container {
-            width: 95%;
+            width: 100%;
             max-width: 500px;
             min-width: 300px;
-            padding: 10px;
+            padding: 12px;
             position: fixed;
-            top: 45%;
+            top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(0.95);
+            transform: translate(-50%, -50%);
             z-index: 10;
             transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
         }
@@ -67,7 +80,7 @@
             border-radius: 10px;
             padding: 10px;
             margin-bottom: 15px;
-            box-shadow: 0 0 15px rgba(255, 235, 59, 0.5);
+            box-shadow: 0 0 20px rgba(255, 235, 59, 0.5);
             animation: glow 2s infinite alternate;
             position: relative;
             overflow: hidden;
@@ -79,11 +92,11 @@
 
         @keyframes glow {
             from { box-shadow: 0 0 10px rgba(255, 235, 59, 0.5); }
-            to { box-shadow: 0 0 20px rgba(255, 235, 59, 0.8); }
+            to { box-shadow: 0 0 30px rgba(255, 235, 59, 0.8); }
         }
 
         h1 {
-            font-size: 1.7rem;
+            font-size: clamp(1.6rem, 6vw, 2.5rem);
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             word-break: break-word;
@@ -104,7 +117,7 @@
             background: #000;
             color: var(--yellow);
             padding: 3px 8px;
-            border-radius: 15px;
+            border-radius: 20px;
             font-size: 0.85em;
             font-weight: bold;
             display: flex;
@@ -115,10 +128,22 @@
         .java-badge {
             background: var(--java-dark);
             color: #b0ffa9;
+            display: none;
+        }
+
+        .desktop-only {
+            display: none;
+        }
+
+        @media (min-width: 769px) {
+            .java-badge,
+            .desktop-only {
+                display: flex;
+            }
         }
 
         .subtitle {
-            font-size: 0.8rem;
+            font-size: clamp(0.75rem, 3vw, 1rem);
             margin: 4px 0 0;
             color: #333;
             font-weight: bold;
@@ -131,9 +156,9 @@
             justify-content: center;
             gap: 8px;
             color: #000;
-            font-size: 1rem;
+            font-size: clamp(0.95rem, 4vw, 1.2rem);
             font-weight: bold;
-            padding: 11px;
+            padding: 10px;
             border-radius: 8px;
             text-decoration: none;
             margin: 10px 0;
@@ -141,7 +166,7 @@
             cursor: pointer;
             width: 100%;
             transition: all 0.2s;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
         }
@@ -165,7 +190,7 @@
         }
 
         .btn-server:hover {
-            box-shadow: 0 0 12px var(--orange);
+            box-shadow: 0 0 15px var(--orange);
         }
 
         .btn-download {
@@ -174,7 +199,7 @@
         }
 
         .btn-download:hover {
-            box-shadow: 0 0 12px var(--green);
+            box-shadow: 0 0 15px var(--green);
         }
 
         .btn:hover {
@@ -216,47 +241,39 @@
             padding: 10px;
             margin: 15px 0;
             text-align: left;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .features h3 {
             color: var(--yellow);
             margin-bottom: 8px;
-            font-size: 1.1rem;
+            font-size: clamp(0.95rem, 4vw, 1.2rem);
             display: flex;
             align-items: center;
-            gap: 8px;
-            justify-content: center;
+            gap: 6px;
         }
 
         .features ul {
-            padding-left: 22px;
+            padding-left: 18px;
         }
 
         .features li {
-            margin-bottom: 7px;
-            font-size: 0.85rem;
-            line-height: 1.3;
-        }
-
-        .features li strong {
-            color: var(--yellow);
+            margin-bottom: 6px;
+            font-size: clamp(0.8rem, 3vw, 1rem);
         }
 
         .notification {
             position: fixed;
-            bottom: 20px;
+            bottom: 15px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.85);
             border-left: 3px solid var(--yellow);
-            padding: 12px 20px;
+            padding: 10px 16px;
             border-radius: 8px;
             color: white;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             z-index: 1000;
             opacity: 0;
             visibility: hidden;
@@ -273,7 +290,7 @@
         }
 
         .notification i {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
 
         .notification.java {
@@ -282,7 +299,7 @@
 
         .emoji-particle {
             position: absolute;
-            font-size: 1.8rem;
+            font-size: clamp(1.8rem, 8vw, 3rem);
             opacity: 0.08;
             z-index: 1;
             pointer-events: none;
@@ -312,7 +329,7 @@
             position: fixed;
             bottom: 8px;
             left: 8px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #666;
             z-index: 10;
             transition: opacity 0.3s;
@@ -320,19 +337,19 @@
 
         .server-status {
             position: fixed;
-            top: 10px;
-            right: 10px;
+            top: 8px;
+            right: 8px;
             background: rgba(0,0,0,0.7);
-            border-radius: 10px;
-            padding: 7px 10px;
+            border-radius: 8px;
+            padding: 6px 10px;
             display: flex;
             align-items: center;
-            gap: 7px;
+            gap: 6px;
             z-index: 100;
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255,255,255,0.1);
-            font-size: 0.85rem;
-            max-width: calc(100% - 20px);
+            font-size: clamp(0.65rem, 3vw, 0.85rem);
+            max-width: calc(100% - 16px);
             transition: transform 0.3s;
             transform-origin: top right;
         }
@@ -365,7 +382,7 @@
         }
 
         .player-count {
-            font-size: 0.85rem;
+            font-size: clamp(0.65rem, 3vw, 0.85rem);
             color: var(--yellow);
             font-weight: bold;
             display: none;
@@ -378,7 +395,7 @@
 
         #status-text {
             font-weight: 500;
-            min-width: 70px;
+            min-width: 65px;
             text-align: left;
             white-space: nowrap;
         }
@@ -387,13 +404,13 @@
             margin-top: 12px;
             background: linear-gradient(135deg, rgba(30, 60, 26, 0.6), rgba(83, 130, 74, 0.4));
             border-radius: 8px;
-            padding: 12px 14px;
+            padding: 12px 14px 14px;
+            display: none;
             border: 1px solid rgba(176, 255, 169, 0.2);
             position: relative;
             overflow: hidden;
             opacity: 0;
             transition: opacity 0.7s ease;
-            backdrop-filter: blur(5px);
         }
 
         .java-section.visible {
@@ -410,10 +427,14 @@
             background: linear-gradient(90deg, var(--java-green), var(--java-dark));
         }
 
+        .java-section.desktop-only {
+            display: block;
+        }
+
         .java-section h3 {
             color: #b0ffa9;
             margin-bottom: 10px;
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 4vw, 1.2rem);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -440,24 +461,20 @@
             min-width: 180px;
             background: rgba(0, 0, 0, 0.25);
             border-radius: 8px;
-            padding: 9px 11px;
+            padding: 8px 10px;
             display: flex;
             align-items: center;
         }
 
         .java-address {
             font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 3vw, 0.95rem);
             color: #b0ffa9;
             font-weight: bold;
             overflow: hidden;
             text-overflow: ellipsis;
             text-align: center;
             flex-grow: 1;
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
         }
 
         .copy-btn {
@@ -498,19 +515,19 @@
 
         .ui-toggle {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 46px;
-            height: 46px;
+            bottom: 15px;
+            right: 15px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             background: linear-gradient(135deg, #ff9800, #ffeb3b);
             color: #000;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             z-index: 1000;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 2px solid rgba(255, 255, 255, 0.3);
@@ -528,34 +545,73 @@
             transition: transform 0.3s;
         }
 
-        .sound-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
-            color: var(--yellow);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.4rem;
-            z-index: 1000;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
+        .mobile-only {
+            display: none;
         }
 
-        .sound-toggle:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: scale(1.1);
-        }
-
-        .sound-toggle.muted {
-            color: #888;
+        @media (max-width: 768px) {
+            .mobile-only {
+                display: flex;
+            }
+            
+            .container {
+                padding: 10px;
+                top: 48%;
+                max-width: 95%;
+            }
+            
+            .title-box {
+                padding: 8px;
+                min-height: 65px;
+            }
+            
+            h1 {
+                font-size: 1.5rem !important;
+            }
+            
+            .subtitle {
+                font-size: 0.7rem;
+            }
+            
+            .features {
+                padding: 8px;
+                margin: 10px 0;
+            }
+            
+            .features h3 {
+                font-size: 0.95rem;
+            }
+            
+            .features li {
+                font-size: 0.75rem !important;
+                margin-bottom: 5px;
+            }
+            
+            .btn {
+                padding: 9px;
+                font-size: 0.9rem !important;
+                margin: 8px 0;
+            }
+            
+            .server-status {
+                padding: 5px 8px;
+                top: 5px;
+                right: 5px;
+            }
+            
+            .ui-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+                bottom: 12px;
+                right: 12px;
+            }
+            
+            .signature {
+                font-size: 0.6rem;
+                bottom: 5px;
+                left: 5px;
+            }
         }
 
         body.ui-hidden .container {
@@ -571,137 +627,9 @@
         body.ui-hidden .signature {
             opacity: 0;
         }
-
-        @media (max-width: 500px) {
-            .container {
-                padding: 8px;
-                top: 45%;
-            }
-            
-            .title-box {
-                padding: 8px;
-                min-height: 65px;
-            }
-            
-            h1 {
-                font-size: 1.5rem !important;
-            }
-            
-            .features {
-                padding: 8px;
-            }
-            
-            .features li {
-                font-size: 0.78rem !important;
-            }
-            
-            .btn {
-                padding: 10px;
-                font-size: 0.95rem !important;
-            }
-            
-            .server-status {
-                padding: 5px 8px;
-                font-size: 0.8rem;
-            }
-            
-            .status-indicator {
-                width: 8px;
-                height: 8px;
-            }
-            
-            .java-section {
-                padding: 10px 12px;
-            }
-            
-            .java-address {
-                font-size: 0.85rem;
-            }
-            
-            .copy-btn {
-                padding: 7px 10px;
-                font-size: 0.9rem;
-            }
-            
-            .ui-toggle, .sound-toggle {
-                width: 42px;
-                height: 42px;
-                font-size: 1.2rem;
-                bottom: 15px;
-            }
-            
-            .sound-toggle {
-                left: 15px;
-            }
-        }
-        
-        @media (max-width: 400px) {
-            .container {
-                max-width: 95vw;
-                transform: translate(-50%, -50%) scale(0.9);
-            }
-            
-            .title-box {
-                min-height: 60px;
-            }
-            
-            h1 {
-                font-size: 1.4rem !important;
-            }
-            
-            .features li {
-                font-size: 0.75rem !important;
-            }
-            
-            .btn {
-                padding: 9px;
-                font-size: 0.9rem !important;
-            }
-            
-            .server-status {
-                top: 5px;
-                right: 5px;
-                padding: 4px 7px;
-            }
-            
-            .java-info {
-                flex-direction: column;
-            }
-            
-            .java-address-container {
-                width: 100%;
-            }
-            
-            .copy-btn {
-                width: 100%;
-            }
-        }
-        
-        @media (max-width: 350px) {
-            .container {
-                top: 45%;
-                transform: translate(-50%, -50%) scale(0.85);
-            }
-            
-            h1 {
-                font-size: 1.3rem !important;
-            }
-            
-            .features li {
-                font-size: 0.72rem !important;
-            }
-            
-            .btn {
-                padding: 8px;
-            }
-        }
     </style>
 </head>
 <body>
-    <div class="sound-toggle" id="sound-toggle">
-        <i class="fas fa-volume-up"></i>
-    </div>
-    
     <div id="emoji-container"></div>
     
     <div class="server-status">
@@ -710,7 +638,7 @@
         <span class="player-count" id="player-count"></span>
     </div>
 
-    <div class="ui-toggle" id="ui-toggle">
+    <div class="ui-toggle mobile-only" id="ui-toggle">
         <i class="fas fa-eye-slash eye-icon"></i>
     </div>
 
@@ -732,7 +660,7 @@
             <h3><i class="fas fa-star"></i> Главные нововведения:</h3>
             <ul>
                 <li><strong>Счастливый Гаст</strong> - новый моб для путешествий и строительства</li>
-                <li><strong>Поводки</strong> - новая логика и физика поводков</li>
+                <li><strong>Поводки</strong> - новая логика и физика поводков </li>
                 <li><strong>Блоки Высушенного Гаста</strong> - редкий декор</li>
                 <li><strong>Панель локатора</strong> - отображает балбесов</li>
                 <li><strong>Новые визуальные эффекты</strong> - тени, вода, шеейдеры встроенные</li>
@@ -750,12 +678,11 @@
             <i class="fas fa-download"></i> СКАЧАТЬ MINECRAFT
         </a>
         
-        <div class="java-section">
+        <div class="java-section desktop-only">
             <div class="java-content">
-                <h3><i class="fab fa-java"></i> Java Edition</h3>
                 <div class="java-info">
                     <div class="java-address-container">
-                        <i class="fas fa-server" style="margin-right: 8px; color: #b0ffa9;"></i>
+                        <i class="fab fa-java" style="margin-right: 8px; color: #b0ffa9;"></i>
                         <div class="java-address" id="java-ip">185.9.145.7:36059</div>
                     </div>
                     <button class="copy-btn" id="java-copy-btn">
@@ -788,7 +715,7 @@
         const CHECK_INTERVAL = 15000;
         
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
-        const EMOJI_COUNT = 8;
+        const EMOJI_COUNT = 12;
         const MIN_SPEED = 0.1;
         const MAX_SPEED = 0.5;
         const INTERACTIVE_OPACITY = 0.15;
@@ -816,7 +743,6 @@
         const clickSound = document.getElementById('click-sound');
         const creeperSound = document.getElementById('creeper-sound');
         const uiToggle = document.getElementById('ui-toggle');
-        const soundToggle = document.getElementById('sound-toggle');
         const container = document.querySelector('.container');
         const javaSection = document.querySelector('.java-section');
         
@@ -825,7 +751,6 @@
         let isDragging = false;
         let dragEmoji = null;
         let uiVisible = true;
-        let soundEnabled = true;
         let wind = {
             x: (Math.random() - 0.5) * WIND_FORCE,
             y: (Math.random() - 0.5) * WIND_FORCE,
@@ -840,10 +765,24 @@
         let lastCreeperSoundTime = 0;
 
         function init() {
+            document.body.addEventListener('click', () => {
+                try {
+                    clickSound.play().then(() => {
+                        clickSound.pause();
+                        clickSound.currentTime = 0;
+                    }).catch(e => {});
+                } catch (e) {}
+            }, { once: true });
+            
             serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
             javaIp.textContent = `${SERVER_IP}:${SERVER_PORT}`;
             
-            javaSection.classList.add('visible');
+            if (window.innerWidth >= 769 && javaSection) {
+                javaSection.style.display = 'block';
+                setTimeout(() => {
+                    javaSection.classList.add('visible');
+                }, 300);
+            }
             
             createEmojiParticles();
             requestAnimationFrame(animateEmojis);
@@ -852,44 +791,6 @@
             setInterval(checkServerStatus, CHECK_INTERVAL);
             setupEventListeners();
             updateScaleFactor();
-            initSound();
-        }
-
-        function initSound() {
-            try {
-                // Попытка воспроизведения при загрузке
-                clickSound.volume = 0.1;
-                creeperSound.volume = 0.1;
-                
-                // Воспроизводим тихий звук для инициализации
-                setTimeout(() => {
-                    clickSound.play().then(() => {
-                        clickSound.pause();
-                        clickSound.currentTime = 0;
-                    }).catch(() => {
-                        soundEnabled = false;
-                        updateSoundIcon();
-                    });
-                }, 500);
-            } catch (e) {
-                soundEnabled = false;
-                updateSoundIcon();
-            }
-        }
-        
-        function updateSoundIcon() {
-            if (soundToggle) {
-                soundToggle.innerHTML = soundEnabled ? 
-                    '<i class="fas fa-volume-up"></i>' : 
-                    '<i class="fas fa-volume-mute"></i>';
-                soundToggle.classList.toggle('muted', !soundEnabled);
-            }
-        }
-        
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            updateSoundIcon();
-            playClickSound();
         }
 
         function createEmojiParticles() {
@@ -899,7 +800,7 @@
                 emoji.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
                 emojiContainer.appendChild(emoji);
                 
-                const size = 25 + Math.random() * 25;
+                const size = 30 + Math.random() * 30;
                 emoji.style.fontSize = `${size}px`;
                 
                 emojiParticles.push({
@@ -1072,7 +973,6 @@
             window.addEventListener('touchcancel', endDrag);
             window.addEventListener('resize', handleResize);
             uiToggle.addEventListener('click', toggleUI);
-            soundToggle.addEventListener('click', toggleSound);
             window.addEventListener('wheel', updateScaleFactor, { passive: true });
         }
         
@@ -1083,7 +983,7 @@
         
         function handleResize() {
             const safeAreaTop = window.visualViewport ? window.visualViewport.offsetTop : 0;
-            container.style.top = `calc(45% + ${safeAreaTop/2}px)`;
+            container.style.top = `calc(50% + ${safeAreaTop/2}px)`;
             
             emojiParticles.forEach(p => {
                 if (p.x > window.innerWidth) p.x = window.innerWidth - SCREEN_MARGIN;
@@ -1091,6 +991,19 @@
                 p.element.style.left = `${p.x}px`;
                 p.element.style.top = `${p.y}px`;
             });
+            
+            if (window.innerWidth >= 769) {
+                document.querySelector('.java-badge').style.display = 'flex';
+                if (javaSection) {
+                    javaSection.style.display = 'block';
+                    setTimeout(() => {
+                        javaSection.classList.add('visible');
+                    }, 100);
+                }
+            } else {
+                document.querySelector('.java-badge').style.display = 'none';
+                if (javaSection) javaSection.style.display = 'none';
+            }
             
             updateScaleFactor();
         }
@@ -1183,39 +1096,32 @@
         }
 
         function playClickSound() {
-            if (!soundEnabled) return;
-            
             try {
                 clickSound.currentTime = 0;
-                clickSound.volume = 0.2;
-                clickSound.play().catch(() => {
-                    soundEnabled = false;
-                    updateSoundIcon();
-                });
-            } catch (e) {
-                soundEnabled = false;
-                updateSoundIcon();
-            }
+                clickSound.volume = 0.3;
+                const playPromise = clickSound.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => {});
+                }
+            } catch (e) {}
         }
 
         function playCreeperSound() {
-            if (!soundEnabled) return;
-            
             const now = Date.now();
             if (now - lastCreeperSoundTime < CREEPER_SOUND_DELAY) return;
+            
             lastCreeperSoundTime = now;
             
             try {
                 creeperSound.currentTime = 0;
-                creeperSound.volume = 0.1;
-                creeperSound.play().catch(() => {
-                    soundEnabled = false;
-                    updateSoundIcon();
-                });
-            } catch (e) {
-                soundEnabled = false;
-                updateSoundIcon();
-            }
+                creeperSound.volume = 0.2;
+                const playPromise = creeperSound.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => {});
+                }
+            } catch (e) {}
         }
 
         function showNotification(message, isJava = false) {
@@ -1236,17 +1142,19 @@
 
         async function checkServerStatus() {
             try {
-                // В реальном коде здесь должен быть запрос к API сервера
-                // Для демонстрации имитируем онлайн статус
-                const online = true;
-                const players = { online: 24, max: 50 };
+                const response = await fetch(`/status.php?t=${Date.now()}`);
+                if (!response.ok) throw new Error('Ошибка сети');
                 
-                if (online) {
+                const data = await response.json();
+                
+                if (data.online) {
                     statusIndicator.classList.add('online');
                     statusText.textContent = 'Онлайн';
                     
-                    playerCount.textContent = `${players.online} из ${players.max}`;
-                    playerCount.classList.add('show');
+                    if (data.players) {
+                        playerCount.textContent = `${data.players.online} из ${data.players.max}`;
+                        playerCount.classList.add('show');
+                    }
                 } else {
                     setOfflineStatus();
                 }

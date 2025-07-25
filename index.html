@@ -60,6 +60,7 @@
             position: relative;
             overflow: hidden;
             cursor: default;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
         .container {
@@ -241,6 +242,13 @@
             padding: 12px;
             margin: 20px 0;
             text-align: left;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+
+        .features::-webkit-scrollbar {
+            width: 0;
+            height: 0;
         }
 
         .features h3 {
@@ -250,6 +258,11 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            position: sticky;
+            top: 0;
+            background: rgba(0,0,0,0.3);
+            padding: 5px 0;
+            z-index: 2;
         }
 
         .features ul {
@@ -572,6 +585,12 @@
         @media (max-width: 500px) {
             .container {
                 padding: 10px;
+                max-width: 95%;
+                max-height: 95vh;
+                overflow-y: auto;
+            }
+            .container::-webkit-scrollbar {
+                display: none;
             }
             .title-box {
                 padding: 10px;
@@ -581,6 +600,7 @@
             }
             .features {
                 padding: 10px;
+                max-height: 30vh;
             }
             .server-status {
                 padding: 6px 10px;
@@ -609,7 +629,7 @@
         @media (max-width: 400px) {
             .container {
                 padding: 8px;
-                max-width: 95vw;
+                max-width: 98%;
             }
             
             .title-box {
@@ -633,6 +653,73 @@
                 top: 5px;
                 right: 5px;
                 padding: 5px 8px;
+                font-size: 0.7rem;
+            }
+            
+            .status-indicator {
+                width: 10px;
+                height: 10px;
+            }
+        }
+        
+        @media (max-height: 700px) {
+            .container {
+                transform: translate(-50%, -50%) scale(0.9);
+                top: 45%;
+            }
+            
+            .title-box {
+                padding: 8px;
+                margin-bottom: 10px;
+            }
+            
+            h1 {
+                font-size: 1.5rem !important;
+            }
+            
+            .features {
+                padding: 8px;
+                margin: 10px 0;
+                max-height: 25vh;
+            }
+            
+            .btn {
+                margin: 8px 0;
+                padding: 10px;
+            }
+            
+            .subtitle {
+                display: none;
+            }
+            
+            .badges-container {
+                margin-top: 3px;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .container {
+                transform: translate(-50%, -50%) scale(0.85);
+                top: 40%;
+            }
+            
+            .features {
+                max-height: 20vh;
+            }
+            
+            .features li {
+                margin-bottom: 4px;
+            }
+        }
+        
+        @media (max-height: 500px) {
+            .container {
+                transform: translate(-50%, -50%) scale(0.8);
+                top: 35%;
+            }
+            
+            .features {
+                display: none;
             }
         }
     </style>
@@ -799,6 +886,22 @@
             setInterval(checkServerStatus, CHECK_INTERVAL);
             setupEventListeners();
             updateScaleFactor();
+            adjustForMobile();
+        }
+
+        function adjustForMobile() {
+            if (window.innerWidth < 769) {
+                const availableHeight = window.innerHeight - 100;
+                const containerHeight = container.offsetHeight;
+                
+                if (containerHeight > availableHeight) {
+                    const scale = Math.min(1, availableHeight / containerHeight * 0.9);
+                    container.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                }
+                
+                container.style.maxHeight = '90vh';
+                container.style.overflowY = 'auto';
+            }
         }
 
         function createEmojiParticles() {
@@ -1014,6 +1117,7 @@
             }
             
             updateScaleFactor();
+            adjustForMobile();
         }
 
         function handleTouchStart(e) {
@@ -1180,4 +1284,4 @@
         window.addEventListener('load', init);
     </script>
 </body>
-</html>
+    </html>

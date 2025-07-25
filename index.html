@@ -6,6 +6,21 @@
     <title>Minecraft Bedrock 1.21.90 / Java 1.21.6 | Выживание</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ОСНОВНЫЕ ИСПРАВЛЕНИЯ */
+        .emoji-particle {
+            pointer-events: none !important; /* Отключаем взаимодействие */
+        }
+        
+        .emoji-particle.interactive {
+            pointer-events: auto !important; /* Включаем ТОЛЬКО для перетаскивания */
+        }
+        
+        /* Убираем масштабирование при двойном тапе */
+        * {
+            touch-action: pan-x pan-y;
+        }
+        
+        /* Остальные стили без изменений */
         * {
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -631,7 +646,7 @@
             </ul>
         </div>
 
-        <a id="server-btn" href="minecraft://?addExternalServer=Выживание|88.151.117.88:25622" class="btn btn-server">
+        <a id="server-btn" href="minecraft://?addExternalServer=Выживание|185.9.145.7:36059" class="btn btn-server">
             <i class="fas fa-plus-circle"></i> ДОБАВИТЬ СЕРВЕР
         </a>
         
@@ -644,7 +659,7 @@
                 <div class="java-info">
                     <div class="java-address-container">
                         <i class="fab fa-java" style="margin-right: 8px; color: #b0ffa9;"></i>
-                        <div class="java-address" id="java-ip">88.151.117.88:25622</div>
+                        <div class="java-address" id="java-ip">185.9.145.7:36059</div>
                     </div>
                     <button class="copy-btn" id="java-copy-btn">
                         <i class="far fa-copy"></i> Копировать
@@ -671,26 +686,26 @@
     </audio>
 
     <script>
-        // СИЛЬНО ИЗМЕНЕННЫЕ ПАРАМЕТРЫ ФИЗИКИ
-        const SERVER_IP = "88.151.117.88";
-        const SERVER_PORT = "25622";
+        // ОБНОВЛЕННЫЕ НАСТРОЙКИ СЕРВЕРА
+        const SERVER_IP = "185.9.145.7";
+        const SERVER_PORT = "36059";
         const CHECK_INTERVAL = 15000;
         
         const EMOJIS = ['☠️', '💣', '😑', '🐷', '🔥', '👻', '💀', '👾', '🤖', '🎃'];
         const EMOJI_COUNT = 12;
-        const MIN_SPEED = 0.1; // Было 0.2
-        const MAX_SPEED = 0.5; // Было 1.0
+        const MIN_SPEED = 0.1;
+        const MAX_SPEED = 0.5;
         const INTERACTIVE_OPACITY = 0.15;
-        const REPULSION_FORCE = 0.05; // Было 0.12
-        const MIN_DISTANCE = 180; // Было 120
+        const REPULSION_FORCE = 0.05;
+        const MIN_DISTANCE = 180;
         const DAMPING = 0.96;
         const WIND_FORCE = 0.0001;
-        const WIND_CHANGE_INTERVAL = 30000; // Было 20000
+        const WIND_CHANGE_INTERVAL = 30000;
         const DRAG_HISTORY_SIZE = 7;
-        const INERTIA_MULTIPLIER = 0.5; // Было 0.7
+        const INERTIA_MULTIPLIER = 0.5;
         const SCREEN_MARGIN = 60;
-        const MAX_PUSH_FORCE = 0.2; // Было 0.4
-        const MAX_WIND_FORCE = 0.0001; // Было 0.0002
+        const MAX_PUSH_FORCE = 0.2;
+        const MAX_WIND_FORCE = 0.0001;
         
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
@@ -765,7 +780,7 @@
                     vy: (Math.random() - 0.5) * MAX_SPEED,
                     size: size,
                     rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 1 // Уменьшено
+                    rotationSpeed: (Math.random() - 0.5) * 1
                 });
             }
         }
@@ -780,7 +795,7 @@
             }
             
             // Медленное изменение ветра
-            const windChangeSpeed = 0.00001; // Было 0.00005
+            const windChangeSpeed = 0.00001;
             wind.x += (windTarget.x - wind.x) * windChangeSpeed;
             wind.y += (windTarget.y - wind.y) * windChangeSpeed;
             
@@ -804,7 +819,7 @@
                 
                 p.x += p.vx * deltaTime;
                 p.y += p.vy * deltaTime;
-                p.rotation += p.rotationSpeed * deltaTime * 0.03; // Замедлено
+                p.rotation += p.rotationSpeed * deltaTime * 0.03;
                 p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
                 
                 // Исправленный выход за границы

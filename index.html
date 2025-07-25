@@ -6,21 +6,18 @@
     <title>Minecraft Bedrock 1.21.90 / Java 1.21.6 | Выживание</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ОСНОВНЫЕ ИСПРАВЛЕНИЯ */
         .emoji-particle {
-            pointer-events: none !important; /* Отключаем взаимодействие */
+            pointer-events: none !important;
         }
         
         .emoji-particle.interactive {
-            pointer-events: auto !important; /* Включаем ТОЛЬКО для перетаскивания */
+            pointer-events: auto !important;
         }
         
-        /* Убираем масштабирование при двойном тапе */
         * {
             touch-action: pan-x pan-y;
         }
         
-        /* Остальные стили без изменений */
         * {
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -87,6 +84,10 @@
             animation: glow 2s infinite alternate;
             position: relative;
             overflow: hidden;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         @keyframes glow {
@@ -100,6 +101,8 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             word-break: break-word;
             text-align: center;
+            line-height: 1.2;
+            padding: 0 5px;
         }
 
         .badges-container {
@@ -510,7 +513,6 @@
             text-align: center;
         }
 
-        /* ПОЛНОСТЬЮ ПЕРЕРАБОТАННАЯ КНОПКА UI TOGGLE */
         .ui-toggle {
             position: fixed;
             bottom: 20px;
@@ -603,6 +605,36 @@
                 right: 15px;
             }
         }
+        
+        @media (max-width: 400px) {
+            .container {
+                padding: 8px;
+                max-width: 95vw;
+            }
+            
+            .title-box {
+                padding: 8px;
+            }
+            
+            h1 {
+                font-size: 1.5rem !important;
+            }
+            
+            .features li {
+                font-size: 0.75rem !important;
+            }
+            
+            .btn {
+                padding: 10px 8px;
+                font-size: 0.9rem !important;
+            }
+            
+            .server-status {
+                top: 5px;
+                right: 5px;
+                padding: 5px 8px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -686,7 +718,6 @@
     </audio>
 
     <script>
-        // ОБНОВЛЕННЫЕ НАСТРОЙКИ СЕРВЕРА
         const SERVER_IP = "185.9.145.7";
         const SERVER_PORT = "36059";
         const CHECK_INTERVAL = 15000;
@@ -706,6 +737,7 @@
         const SCREEN_MARGIN = 60;
         const MAX_PUSH_FORCE = 0.2;
         const MAX_WIND_FORCE = 0.0001;
+        const CREEPER_SOUND_DELAY = 500;
         
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
@@ -738,12 +770,21 @@
             x: (Math.random() - 0.5) * MAX_WIND_FORCE,
             y: (Math.random() - 0.5) * MAX_WIND_FORCE
         };
+        let lastCreeperSoundTime = 0;
 
         function init() {
+            document.body.addEventListener('click', () => {
+                try {
+                    clickSound.play().then(() => {
+                        clickSound.pause();
+                        clickSound.currentTime = 0;
+                    }).catch(e => {});
+                } catch (e) {}
+            }, { once: true });
+            
             serverBtn.href = `minecraft://?addExternalServer=Выживание|${SERVER_IP}:${SERVER_PORT}`;
             javaIp.textContent = `${SERVER_IP}:${SERVER_PORT}`;
             
-            // Плавное появление Java-секции
             if (window.innerWidth >= 769 && javaSection) {
                 javaSection.style.display = 'block';
                 setTimeout(() => {
@@ -757,8 +798,6 @@
             checkServerStatus();
             setInterval(checkServerStatus, CHECK_INTERVAL);
             setupEventListeners();
-            
-            // Инициализация масштаба
             updateScaleFactor();
         }
 
@@ -794,7 +833,6 @@
                 lastWindUpdate = timestamp;
             }
             
-            // Медленное изменение ветра
             const windChangeSpeed = 0.00001;
             wind.x += (windTarget.x - wind.x) * windChangeSpeed;
             wind.y += (windTarget.y - wind.y) * windChangeSpeed;
@@ -803,6 +841,11 @@
         }
 
         function animateEmojis(timestamp) {
+            if (lastTime && timestamp - lastTime < 16) {
+                requestAnimationFrame(animateEmojis);
+                return;
+            }
+            
             const deltaTime = Math.min(50, timestamp - lastTime || 16);
             lastTime = timestamp;
             
@@ -822,7 +865,6 @@
                 p.rotation += p.rotationSpeed * deltaTime * 0.03;
                 p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg)`;
                 
-                // Исправленный выход за границы
                 if (p.x < -p.size) p.x = window.innerWidth + p.size;
                 else if (p.x > window.innerWidth + p.size) p.x = -p.size;
                 
@@ -878,26 +920,21 @@
                 }
             });
 
-            // ИСПРАВЛЕНИЕ КНОПКИ КОПИРОВАНИЯ
             javaCopyBtn.addEventListener('click', function() {
                 playClickSound();
                 const textToCopy = `${SERVER_IP}:${SERVER_PORT}`;
                 
-                // Современный метод копирования
                 if (navigator.clipboard) {
                     navigator.clipboard.writeText(textToCopy).then(() => {
                         showNotification('IP скопирован<br><small>Пихай его в Minecraft Java</small>', true);
                     }).catch(err => {
-                        // Fallback для старых браузеров
                         copyWithFallback(textToCopy);
                     });
                 } else {
-                    // Метод для старых браузеров
                     copyWithFallback(textToCopy);
                 }
             });
 
-            // Функция fallback для копирования
             function copyWithFallback(text) {
                 const textArea = document.createElement('textarea');
                 textArea.value = text;
@@ -924,7 +961,6 @@
                 }
             }
             
-            // Уведомление с ручным копированием
             function showFallbackNotification(text) {
                 notificationText.innerHTML = `
                     <i class="fas fa-exclamation-triangle"></i> Ошибка копирования!<br>
@@ -949,17 +985,14 @@
         }
         
         function updateScaleFactor() {
-            // Определяем масштаб страницы
             const zoom = window.visualViewport ? window.visualViewport.scale : 1;
             scaleFactor = zoom;
         }
         
         function handleResize() {
-            // Корректируем позицию контейнера
-            container.style.top = '50%';
-            container.style.left = '50%';
+            const safeAreaTop = window.visualViewport ? window.visualViewport.offsetTop : 0;
+            container.style.top = `calc(50% + ${safeAreaTop/2}px)`;
             
-            // Корректируем позиции эмодзи
             emojiParticles.forEach(p => {
                 if (p.x > window.innerWidth) p.x = window.innerWidth - SCREEN_MARGIN;
                 if (p.y > window.innerHeight) p.y = window.innerHeight - SCREEN_MARGIN;
@@ -967,7 +1000,6 @@
                 p.element.style.top = `${p.y}px`;
             });
             
-            // Надежное скрытие Java-элементов на мобильных устройствах
             if (window.innerWidth >= 769) {
                 document.querySelector('.java-badge').style.display = 'flex';
                 if (javaSection) {
@@ -1048,7 +1080,6 @@
                         dragEmoji.vx = (last.x - first.x) / dt * INERTIA_MULTIPLIER;
                         dragEmoji.vy = (last.y - first.y) / dt * INERTIA_MULTIPLIER;
                         
-                        // Ограничиваем максимальную скорость
                         const speed = Math.sqrt(dragEmoji.vx * dragEmoji.vx + dragEmoji.vy * dragEmoji.vy);
                         if (speed > MAX_SPEED * 3) {
                             dragEmoji.vx = (dragEmoji.vx / speed) * MAX_SPEED * 3;
@@ -1073,30 +1104,43 @@
         }
 
         function playClickSound() {
-            clickSound.currentTime = 0;
-            clickSound.volume = 0.3;
-            clickSound.play().catch(e => console.log("Audio play error:", e));
+            try {
+                clickSound.currentTime = 0;
+                clickSound.volume = 0.3;
+                const playPromise = clickSound.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => {});
+                }
+            } catch (e) {}
         }
 
         function playCreeperSound() {
-            creeperSound.currentTime = 0;
-            creeperSound.volume = 0.2;
-            creeperSound.play().catch(e => console.log("Audio play error:", e));
+            const now = Date.now();
+            if (now - lastCreeperSoundTime < CREEPER_SOUND_DELAY) return;
+            
+            lastCreeperSoundTime = now;
+            
+            try {
+                creeperSound.currentTime = 0;
+                creeperSound.volume = 0.2;
+                const playPromise = creeperSound.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => {});
+                }
+            } catch (e) {}
         }
 
-        // ИСПРАВЛЕНИЕ УВЕДОМЛЕНИЙ
         function showNotification(message, isJava = false) {
             notificationText.innerHTML = message;
             
-            // Сбросить предыдущие классы
             universalNotification.className = 'notification';
             
-            // Добавить java-стиль если нужно
             if (isJava) {
                 universalNotification.classList.add('java');
             }
             
-            // Показать уведомление
             universalNotification.classList.add('show');
             
             setTimeout(() => {
